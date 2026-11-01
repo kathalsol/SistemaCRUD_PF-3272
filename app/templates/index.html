@@ -4,22 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sistema CRUD de clientes</title>
-    <style>
-      body { margin: 0; background: #f1f5f9; color: #172033; font-family: system-ui, sans-serif; }
-      main { max-width: 720px; margin: 8vh auto; padding: 2rem; background: white; border-radius: 12px; }
-      h1 { margin-top: 0; }
-      li { margin: .6rem 0; }
-      a { color: #1748b5; }
-      .notice { padding: 1rem; background: #eff6ff; border-left: 4px solid #1748b5; }
-      @media (max-width: 760px) { main { margin: 1rem; padding: 1.5rem; } }
-    </style>
+    <link rel="stylesheet" href="/static/css/styles.css">
   </head>
   <body>
     <main>
       <h1>Sistema CRUD de clientes</h1>
       <p>Base del proyecto colaborativo con FastAPI, Python y SQLite.</p>
-      <p class="notice">La infraestructura compartida ya existe. Las operaciones
-        de clientes y su interfaz quedan pendientes para cada integrante.</p>
+      <p class="notice">El registro de clientes ya est&aacute; disponible.
+        Consultar, editar y eliminar quedan pendientes para los dem&aacute;s integrantes.</p>
+      <h2>Clientes</h2>
+      <nav aria-label="Operaciones de clientes">
+        <a class="button" href="/clientes/crear">Registrar cliente</a>
+      </nav>
       <h2>Herramientas disponibles</h2>
       <ul>
         <li><a href="/docs">Documentaci&oacute;n interactiva de la API</a></li>
