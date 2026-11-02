@@ -5,8 +5,9 @@ TRABAJO FINAL Curso PF-3872 Parte 2 Desarrollo colaborativo y pase a producción
 
 Aplicación con **Python 3.12+, FastAPI, SQLAlchemy y SQLite**. Incluye una
 página de inicio, documentación de API, comprobación de conexión, modelo de
-cliente, validaciones y pruebas. **No implementa todavía las operaciones CRUD
-ni su interfaz**: cada integrante desarrolla su parte sobre esta misma base.
+cliente, validaciones y pruebas. Esta rama incorpora **la eliminación de
+clientes con confirmación y cancelación**. Las demás operaciones se integran
+desde las ramas de sus responsables.
 
 ## Instalación y ejecución
 
@@ -35,6 +36,7 @@ el entorno, usar `.venv/bin/python` en Linux o `.\.venv\Scripts\python.exe`
 en Windows. En una instalación de demostración basta con `requirements.txt`.
 
 - Inicio: <http://127.0.0.1:8000/>
+- Eliminar cliente: <http://127.0.0.1:8000/clientes/eliminar>
 - Swagger: <http://127.0.0.1:8000/docs>
 - ReDoc: <http://127.0.0.1:8000/redoc>
 - Estado y conexión SQLite: <http://127.0.0.1:8000/health>
@@ -57,15 +59,24 @@ app/
     crear.py            Persona 1
     consultar.py        Persona 2
     editar.py           Persona 3
-    eliminar.py         Persona 4
+    eliminar.py         Esteban: DELETE con estados 204 y 404
   templates/
-    index.html          Página inicial; pendiente interfaz CRUD
+    index.html          Página inicial y navegación
+    eliminar.html       Confirmación y cancelación de eliminación
+  static/
+    js/eliminar.js      Validación, confirmación y llamada DELETE
+    css/eliminar.css    Estilos de la pantalla de eliminación
 tests/
   test_base.py          Pruebas de infraestructura y contratos
+  test_eliminar.py      Pruebas de API, persistencia y recursos
+scripts/
+  probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
+docs/
+  entrega-esteban.md    Evidencias, aporte y pendientes de entrega
 ```
 
-Los cuatro routers están conectados, pero no declaran endpoints todavía.
-Acuerdo de rutas para el desarrollo:
+Los cuatro routers están conectados. En esta rama está implementado `DELETE`;
+los otros endpoints corresponden a los demás integrantes. Acuerdo de rutas:
 
 | Operación | Método y ruta | Contrato esperado |
 | --- | --- | --- |
@@ -103,7 +114,40 @@ python -m pytest -q
 
 Las pruebas usan directorios temporales: comprueban inicio, documentación,
 creación del esquema, validaciones, persistencia tras reiniciar y aislamiento
-entre ambientes. No modifican la base de desarrollo.
+entre ambientes. Las de eliminación verifican 204 sin cuerpo, 404, identificadores
+inválidos, persistencia y conservación de otros clientes. No modifican la base
+de desarrollo.
+
+### Probar la eliminación de forma aislada
+
+Desde la raíz, con el entorno virtual activo:
+
+```bash
+python -m scripts.probar_eliminar
+```
+
+Abrir <http://127.0.0.1:8002/clientes/eliminar>. El script crea una base temporal
+con los clientes **1** y **2**; no necesita las operaciones de creación o
+consulta aún pendientes. El directorio temporal se elimina al detenerlo con
+Ctrl+C y una nueva ejecución vuelve a crear ambos clientes.
+
+1. Ingresar `1` y pulsar **Continuar**. Revisar el identificador del diálogo.
+2. Pulsar **Cancelar** (o Escape): debe mostrar cancelación. En la pestaña
+   Network del navegador no debe existir una petición `DELETE`.
+3. Volver a continuar y pulsar **Sí, eliminar cliente**: debe responder 204
+   sin cuerpo y mostrar que el cliente 1 fue eliminado.
+4. Repetir con `1`: debe responder 404 e indicar que ya no existe.
+5. El cliente `2` debe permanecer. Se puede comprobar directamente en la base
+   temporal cuya ruta imprime el script, o mediante la consulta cuando Ney
+   integre esa operación.
+
+Para enlazar desde el futuro listado, usar `/clientes/eliminar?cliente_id=ID`.
+Este enlace solamente precarga el identificador: siempre requiere confirmación.
+La pantalla acepta enteros positivos representables con exactitud por JavaScript;
+la API acepta identificadores positivos dentro del rango de enteros de SQLite.
+
+Las capturas y resultados de las comprobaciones realizadas se encuentran en
+[la entrega de Esteban](docs/entrega-esteban.md).
 
 ## Configuración y demostración
 

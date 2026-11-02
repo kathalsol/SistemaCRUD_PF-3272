@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Eliminar cliente | Sistema CRUD</title>
+    <link rel="stylesheet" href="/static/css/eliminar.css">
+    <script src="/static/js/eliminar.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Navegaci&oacute;n"><a href="/">Volver al inicio</a></nav>
+      <h1>Eliminar cliente</h1>
+      <p>Ingresa el identificador del cliente que deseas eliminar.</p>
+      <p class="notice">Antes de eliminar, podr&aacute;s confirmar o cancelar la operaci&oacute;n.</p>
+      <noscript><p class="error">Debes activar JavaScript para eliminar clientes.</p></noscript>
+      <form id="eliminar-cliente">
+        <label for="cliente-id">Identificador del cliente</label>
+        <input id="cliente-id" name="cliente_id" type="text" inputmode="numeric"
+          pattern="[1-9][0-9]*" maxlength="16" required
+          aria-describedby="id-ayuda" autocomplete="off">
+        <p id="id-ayuda" class="help">Usa el n&uacute;mero asignado al registrar el cliente.</p>
+        <button id="revisar" type="submit">Continuar</button>
+      </form>
+      <p id="resultado" role="status" aria-live="polite" aria-atomic="true"></p>
+    </main>
+
+    <dialog id="confirmacion" aria-labelledby="confirmacion-titulo"
+      aria-describedby="confirmacion-descripcion">
+      <h2 id="confirmacion-titulo">Confirmar eliminaci&oacute;n</h2>
+      <p id="confirmacion-descripcion">
+        Vas a eliminar al cliente con identificador <strong id="id-confirmado"></strong>.
+        Esta acci&oacute;n no se puede deshacer.
+      </p>
+      <div class="actions">
+        <button id="cancelar" type="button" class="secondary" autofocus>Cancelar</button>
+        <button id="confirmar" type="button" class="danger">S&iacute;, eliminar cliente</button>
+      </div>
+    </dialog>
+  </body>
+</html>
