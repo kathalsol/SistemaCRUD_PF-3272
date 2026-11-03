@@ -42,13 +42,32 @@ function mostrarDetalle(cliente) {
   detalle.hidden = false;
 }
 
+// Solo la consulta más reciente puede actualizar el detalle: las respuestas
+// anteriores que lleguen fuera de orden se descartan y su petición se cancela.
+let consultaVigente = 0;
+let controladorConsulta = null;
+
+function descartarConsultaPendiente() {
+  consultaVigente += 1;
+  if (controladorConsulta) controladorConsulta.abort();
+  controladorConsulta = null;
+}
+
 async function consultarCliente(id) {
+  descartarConsultaPendiente();
+  const consulta = consultaVigente;
+  const controlador = new AbortController();
+  controladorConsulta = controlador;
   detalle.hidden = true;
   mostrarResultado("Consultando cliente...", "");
   try {
-    const respuesta = await fetch(`/api/clientes/${encodeURIComponent(id)}`);
-    if (respuesta.status === 200) {
-      mostrarDetalle(await respuesta.json());
+    const respuesta = await fetch(
+      `/api/clientes/${encodeURIComponent(id)}`, { signal: controlador.signal },
+    );
+    const cliente = respuesta.status === 200 ? await respuesta.json() : null;
+    if (consulta !== consultaVigente) return;
+    if (cliente) {
+      mostrarDetalle(cliente);
       mostrarResultado("", "");
     } else if (respuesta.status === 404) {
       mostrarResultado(`No existe un cliente con identificador ${id}.`, "error");
@@ -56,6 +75,7 @@ async function consultarCliente(id) {
       mostrarResultado(`El servidor devolvió un error (${respuesta.status}). No se pudo consultar el cliente.`, "error");
     }
   } catch (error) {
+    if (consulta !== consultaVigente) return;
     console.error("Error al consultar el cliente:", error);
     mostrarResultado("No se pudo consultar el cliente. Revisa la conexión.", "error");
   }
@@ -140,6 +160,7 @@ formulario.addEventListener("submit", (evento) => {
     consultarCliente(entrada.value);
     return;
   }
+  descartarConsultaPendiente();
   detalle.hidden = true;
   mostrarResultado("", "");
   entrada.focus();

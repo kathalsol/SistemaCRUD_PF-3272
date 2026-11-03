@@ -54,6 +54,7 @@ async function preparar(fetch, search = "") {
       return fetch(url);
     },
     URLSearchParams,
+    AbortController,
     window: { location: { search } },
   });
   await new Promise((resolver) => setImmediate(resolver));
@@ -139,4 +140,70 @@ test("carga el detalle desde ?cliente_id=ID", async () => {
 
   assert.ok(peticiones.includes("/api/clientes/1"));
   assert.equal(elementos.detalle.hidden, false);
+});
+
+test("ignora respuestas de consultas anteriores que llegan fuera de orden", async () => {
+  const pendientes = {};
+  const { elementos } = await preparar((url) => {
+    if (url === "/api/clientes") return respuesta(200, []);
+    return new Promise((resolver) => { pendientes[url] = resolver; });
+  });
+  const buscar = (id) => {
+    elementos["cliente-id"].value = id;
+    elementos["buscar-cliente"].listeners.submit({ preventDefault() {} });
+  };
+  const luis = { ...ana, id: 2, nombre: "Luis", telefono: 22223333 };
+
+  buscar("1");
+  buscar("2");
+  pendientes["/api/clientes/2"](respuesta(200, luis));
+  await new Promise((resolver) => setImmediate(resolver));
+  pendientes["/api/clientes/1"](respuesta(200, ana));
+  await new Promise((resolver) => setImmediate(resolver));
+
+  assert.equal(elementos["cliente-id"].value, "2");
+  assert.equal(elementos["detalle-id"].textContent, 2);
+  assert.equal(elementos["detalle-nombre"].textContent, "Luis");
+  assert.equal(elementos["detalle-eliminar"].href, "/clientes/eliminar?cliente_id=2");
+});
+
+test("un 404 o error de una consulta anterior no reemplaza la consulta vigente", async () => {
+  const pendientes = {};
+  const { elementos } = await preparar((url) => {
+    if (url === "/api/clientes") return respuesta(200, []);
+    return new Promise((resolver, rechazar) => { pendientes[url] = { resolver, rechazar }; });
+  });
+  const buscar = (id) => {
+    elementos["cliente-id"].value = id;
+    elementos["buscar-cliente"].listeners.submit({ preventDefault() {} });
+  };
+
+  buscar("98");
+  buscar("99");
+  buscar("1");
+  pendientes["/api/clientes/1"].resolver(respuesta(200, ana));
+  await new Promise((resolver) => setImmediate(resolver));
+  pendientes["/api/clientes/98"].resolver(respuesta(404, {}));
+  pendientes["/api/clientes/99"].rechazar(new Error("sin conexión"));
+  await new Promise((resolver) => setImmediate(resolver));
+
+  assert.equal(elementos.detalle.hidden, false);
+  assert.equal(elementos["detalle-id"].textContent, 1);
+  assert.equal(elementos.resultado.textContent, "");
+});
+
+test("un identificador inválido descarta la consulta pendiente", async () => {
+  const pendientes = {};
+  const { elementos } = await preparar((url) => {
+    if (url === "/api/clientes") return respuesta(200, []);
+    return new Promise((resolver) => { pendientes[url] = resolver; });
+  });
+  elementos["cliente-id"].value = "1";
+  elementos["buscar-cliente"].listeners.submit({ preventDefault() {} });
+  elementos["cliente-id"].value = "abc";
+  elementos["buscar-cliente"].listeners.submit({ preventDefault() {} });
+  pendientes["/api/clientes/1"](respuesta(200, ana));
+  await new Promise((resolver) => setImmediate(resolver));
+
+  assert.equal(elementos.detalle.hidden, true);
 });
