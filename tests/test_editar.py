@@ -105,3 +105,10 @@ def test_editar_cliente_id_no_numerico(client: TestClient):
     response = client.put("/api/clientes/abc", json=DATOS_NUEVOS)
 
     assert response.status_code == 422
+
+
+def test_pagina_editar(client: TestClient):
+    response = client.get("/editar")
+
+    assert response.status_code == 200
+    assert "Editar cliente" in response.text

@@ -42,6 +42,19 @@ en Windows. En una instalación de demostración basta con `requirements.txt`.
 - Swagger: <http://127.0.0.1:8000/docs>
 - ReDoc: <http://127.0.0.1:8000/redoc>
 - Estado y conexión SQLite: <http://127.0.0.1:8000/health>
+- Editar cliente: <http://127.0.0.1:8000/editar> (acepta `?id=<cliente_id>`)
+
+### Datos de ejemplo
+
+Para cargar cinco clientes de ejemplo en la base del ambiente actual:
+
+```bash
+python -m scripts.seed
+```
+
+Solo inserta datos si la tabla `clientes` está vacía, así que puede ejecutarse
+varias veces. Respeta `APP_ENVIRONMENT` y `APP_DATA_DIR`, por ejemplo
+`APP_ENVIRONMENT=demo python -m scripts.seed`.
 
 La tabla `clientes` se crea al iniciar la aplicación. La base predeterminada es
 `data/development.db`; reiniciar no borra los registros. No subir `.env`, bases
@@ -66,6 +79,7 @@ app/
     index.html          Página inicial y navegación
     crear.html          Formulario de registro
     consultar.html      Listado, búsqueda por identificador y detalle
+    editar.html         Formulario de edición
     eliminar.html       Confirmación y cancelación de eliminación
   static/
     css/styles.css      Estilos compartidos
@@ -83,6 +97,7 @@ tests/
   test_eliminar.py      Pruebas de API, persistencia y recursos
 scripts/
   probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
+  seed.py               Clientes de ejemplo
 docs/
   entrega-esteban.md    Evidencias, aporte y pendientes de entrega
 ```

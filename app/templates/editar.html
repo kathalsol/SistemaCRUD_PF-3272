@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar cliente</title>
+    <style>
+      body { margin: 0; background: #f1f5f9; color: #172033; font-family: system-ui, sans-serif; }
+      main { max-width: 520px; margin: 8vh auto; padding: 2rem; background: white; border-radius: 12px; }
+      h1 { margin-top: 0; }
+      a { color: #1748b5; }
+      label { display: block; margin-top: 1rem; font-weight: 600; }
+      input { box-sizing: border-box; width: 100%; margin-top: .3rem; padding: .55rem; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
+      .fila { display: flex; gap: .5rem; align-items: end; }
+      .fila label { flex: 1; }
+      button { margin-top: 1.2rem; padding: .6rem 1.2rem; border: 0; border-radius: 6px; background: #1748b5; color: white; font: inherit; cursor: pointer; }
+      button.secundario { background: #e2e8f0; color: #172033; }
+      button:disabled { opacity: .6; cursor: default; }
+      #mensaje { margin-top: 1.2rem; padding: 1rem; border-left: 4px solid; white-space: pre-line; }
+      #mensaje.ok { background: #f0fdf4; border-color: #16a34a; }
+      #mensaje.error { background: #fef2f2; border-color: #dc2626; }
+      #mensaje.info { background: #eff6ff; border-color: #1748b5; }
+      @media (max-width: 760px) { main { margin: 1rem; padding: 1.5rem; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p><a href="/">&larr; Inicio</a></p>
+      <h1>Editar cliente</h1>
+
+      <form id="formulario" novalidate>
+        <div class="fila">
+          <label>ID del cliente
+            <input id="cliente_id" type="number" min="1" required>
+          </label>
+          <button type="button" id="cargar" class="secundario">Cargar</button>
+        </div>
+        <label>Nombre
+          <input id="nombre" maxlength="100" required>
+        </label>
+        <label>Correo
+          <input id="correo" type="email" maxlength="254" required>
+        </label>
+        <label>Tel&eacute;fono
+          <input id="telefono" maxlength="30" required>
+        </label>
+        <button type="submit" id="guardar">Guardar cambios</button>
+      </form>
+
+      <div id="mensaje" hidden></div>
+    </main>
+
+    <script>
+      const campos = ["nombre", "correo", "telefono"];
+      const $ = (id) => document.getElementById(id);
+
+      function mostrar(texto, tipo) {
+        const mensaje = $("mensaje");
+        mensaje.textContent = texto;
+        mensaje.className = tipo;
+        mensaje.hidden = false;
+      }
+
+      function describirError(cuerpo) {
+        if (Array.isArray(cuerpo?.detail)) {
+          return cuerpo.detail
+            .map((error) => `${error.loc.slice(1).join(".") || "cuerpo"}: ${error.msg}`)
+            .join("\n");
+        }
+        return cuerpo?.detail ?? "Error desconocido";
+      }
+
+      async function cargar() {
+        const id = $("cliente_id").value;
+        if (!id) return mostrar("Ingrese el ID del cliente.", "error");
+
+        const respuesta = await fetch(`/api/clientes/${id}`);
+        if (respuesta.ok) {
+          const cliente = await respuesta.json();
+          campos.forEach((campo) => ($(campo).value = cliente[campo]));
+          mostrar(`Cliente ${id} cargado.`, "info");
+        } else if (respuesta.status === 404) {
+          mostrar("Cliente no encontrado.", "error");
+        } else {
+          mostrar("No se pudieron cargar los datos actuales. Complete los campos manualmente.", "info");
+        }
+      }
+
+      async function guardar(evento) {
+        evento.preventDefault();
+        const id = $("cliente_id").value;
+        if (!id) return mostrar("Ingrese el ID del cliente.", "error");
+
+        const datos = Object.fromEntries(campos.map((campo) => [campo, $(campo).value]));
+        $("guardar").disabled = true;
+        try {
+          const respuesta = await fetch(`/api/clientes/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datos),
+          });
+          const cuerpo = await respuesta.json();
+          if (respuesta.ok) {
+            campos.forEach((campo) => ($(campo).value = cuerpo[campo]));
+            mostrar(`Cliente ${cuerpo.id} actualizado correctamente.`, "ok");
+          } else {
+            mostrar(describirError(cuerpo), "error");
+          }
+        } catch {
+          mostrar("No se pudo conectar con la API.", "error");
+        } finally {
+          $("guardar").disabled = false;
+        }
+      }
+
+      $("cargar").addEventListener("click", cargar);
+      $("formulario").addEventListener("submit", guardar);
+
+      const idInicial = new URLSearchParams(location.search).get("id");
+      if (idInicial) {
+        $("cliente_id").value = idInicial;
+        cargar();
+      }
+    </script>
+  </body>
+</html>
