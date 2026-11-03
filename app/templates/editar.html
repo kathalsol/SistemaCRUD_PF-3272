@@ -13,6 +13,12 @@
       input { box-sizing: border-box; width: 100%; margin-top: .3rem; padding: .55rem; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
       .fila { display: flex; gap: .5rem; align-items: end; }
       .fila label { flex: 1; }
+      .telefono { display: flex; align-items: center; gap: .5rem; margin-top: .3rem; }
+      .telefono input { margin-top: 0; }
+      .prefijo { padding: .55rem; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; white-space: nowrap; }
+      .ayuda { margin: .3rem 0 0; color: #475569; font-size: .9rem; }
+      .error-campo { margin: .3rem 0 0; color: #b91c1c; font-size: .9rem; }
+      .error-campo:empty { display: none; }
       button { margin-top: 1.2rem; padding: .6rem 1.2rem; border: 0; border-radius: 6px; background: #1748b5; color: white; font: inherit; cursor: pointer; }
       button.secundario { background: #e2e8f0; color: #172033; }
       button:disabled { opacity: .6; cursor: default; }
@@ -41,9 +47,14 @@
         <label>Correo
           <input id="correo" type="email" maxlength="254" required>
         </label>
-        <label>Tel&eacute;fono
-          <input id="telefono" type="tel" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" required>
-        </label>
+        <label for="telefono">Tel&eacute;fono</label>
+        <div class="telefono">
+          <span class="prefijo" aria-label="C&oacute;digo de pa&iacute;s de Costa Rica">+506</span>
+          <input id="telefono" type="tel" inputmode="numeric" pattern="[1-9][0-9]{7}" minlength="8" maxlength="8"
+            autocomplete="tel-national" placeholder="88887777" required aria-describedby="telefono-ayuda telefono-error">
+        </div>
+        <p id="telefono-ayuda" class="ayuda">C&oacute;digo de pa&iacute;s +506 (Costa Rica). Escriba solo los 8 d&iacute;gitos del n&uacute;mero, sin el prefijo.</p>
+        <p id="telefono-error" class="error-campo" aria-live="polite"></p>
         <button type="submit" id="guardar">Guardar cambios</button>
       </form>
 
@@ -59,6 +70,17 @@
         mensaje.textContent = texto;
         mensaje.className = tipo;
         mensaje.hidden = false;
+      }
+
+      // Solo se aceptan dígitos: se descartan letras y símbolos mientras se escribe o pega.
+      $("telefono").addEventListener("input", () => {
+        $("telefono").value = $("telefono").value.replace(/[^0-9]/g, "").slice(0, 8);
+        errorTelefono("");
+      });
+
+      function errorTelefono(texto) {
+        $("telefono-error").textContent = texto;
+        $("telefono").setAttribute("aria-invalid", texto ? "true" : "false");
       }
 
       function describirError(cuerpo) {
@@ -92,6 +114,12 @@
         if (!id) return mostrar("Ingrese el ID del cliente.", "error");
 
         const datos = Object.fromEntries(campos.map((campo) => [campo, $(campo).value]));
+        if (!/^[1-9][0-9]{7}$/.test(datos.telefono)) {
+          errorTelefono("Ingrese un teléfono de exactamente 8 dígitos, sin cero inicial.");
+          $("telefono").focus();
+          return mostrar("Revise el teléfono antes de guardar.", "error");
+        }
+        errorTelefono("");
         datos.telefono = Number(datos.telefono);
         $("guardar").disabled = true;
         try {
