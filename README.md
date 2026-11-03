@@ -103,7 +103,8 @@ scripts/
   probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
   seed.py               Clientes de ejemplo
 docs/
-  entrega-esteban.md    Evidencias, aporte y pendientes de entrega
+  pase-v0.1.0.md        Registro del pase y evidencias de verificación
+  procedimiento-pase.md Procedimiento reproducible de despliegue y reversión
 ```
 
 Los cuatro routers están conectados y sus endpoints implementados según el
@@ -268,7 +269,7 @@ La pantalla acepta enteros positivos representables con exactitud por JavaScript
 la API acepta identificadores positivos dentro del rango de enteros de SQLite.
 
 Las capturas y resultados de las comprobaciones realizadas se encuentran en
-[la entrega de Esteban](docs/entrega-esteban.md).
+[el registro de verificación del pase](docs/pase-v0.1.0.md).
 
 Las pruebas de registro comprueban respuesta 201, identificadores, persistencia,
 límites, errores 422 sin insertar datos y errores de escritura sin respuesta de
