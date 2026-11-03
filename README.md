@@ -5,9 +5,9 @@ TRABAJO FINAL Curso PF-3872 Parte 2 Desarrollo colaborativo y pase a producción
 
 Aplicación con **Python 3.12+, FastAPI, SQLAlchemy y SQLite**. Incluye una
 página de inicio, documentación de API, comprobación de conexión, modelo de
-cliente, validaciones y pruebas. Esta rama incorpora **la eliminación de
-clientes con confirmación y cancelación**. Las demás operaciones se integran
-desde las ramas de sus responsables.
+cliente, validaciones y pruebas. **El registro y la eliminación de clientes
+están implementados, con sus API y formularios**, incluida la confirmación o
+cancelación de la eliminación. Consultar y editar quedan pendientes de integrar.
 
 ## Instalación y ejecución
 
@@ -36,6 +36,7 @@ el entorno, usar `.venv/bin/python` en Linux o `.\.venv\Scripts\python.exe`
 en Windows. En una instalación de demostración basta con `requirements.txt`.
 
 - Inicio: <http://127.0.0.1:8000/>
+- Registro de clientes: <http://127.0.0.1:8000/clientes/crear>
 - Eliminar cliente: <http://127.0.0.1:8000/clientes/eliminar>
 - Swagger: <http://127.0.0.1:8000/docs>
 - ReDoc: <http://127.0.0.1:8000/redoc>
@@ -62,12 +63,17 @@ app/
     eliminar.py         Esteban: DELETE con estados 204 y 404
   templates/
     index.html          Página inicial y navegación
+    crear.html          Formulario de registro
     eliminar.html       Confirmación y cancelación de eliminación
   static/
+    css/styles.css      Estilos compartidos
+    js/crear.js         Envío y mensajes de validación del registro
     js/eliminar.js      Validación, confirmación y llamada DELETE
     css/eliminar.css    Estilos de la pantalla de eliminación
 tests/
   test_base.py          Pruebas de infraestructura y contratos
+  test_crear.py         Pruebas de API y recursos del registro
+  test_crear_ui.cjs     Pruebas del comportamiento JavaScript
   test_eliminar.py      Pruebas de API, persistencia y recursos
 scripts/
   probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
@@ -75,8 +81,8 @@ docs/
   entrega-esteban.md    Evidencias, aporte y pendientes de entrega
 ```
 
-Los cuatro routers están conectados. En esta rama está implementado `DELETE`;
-los otros endpoints corresponden a los demás integrantes. Acuerdo de rutas:
+Los cuatro routers están conectados. Los endpoints de creación y eliminación
+están implementados; las demás rutas son el acuerdo para el desarrollo:
 
 | Operación | Método y ruta | Contrato esperado |
 | --- | --- | --- |
@@ -93,18 +99,62 @@ En los módulos usar rutas relativas al prefijo común: `@router.post("")` o
 Cada escritura debe llamar a `session.commit()` y, cuando corresponda,
 `session.refresh(cliente)`. La dependencia cierra la sesión al terminar la
 petición; no confirma escrituras automáticamente.
+Al construir o actualizar un modelo desde un esquema, usar
+`datos.model_dump(exclude={"codigo_pais"})`: el código fijo pertenece al
+contrato de API, no a las columnas del modelo.
 
 `id` es un entero generado por SQLite. Los cuerpos de creación y edición usan
 `nombre` (1–100 caracteres), `correo` (correo válido, hasta 254 caracteres) y
-`telefono` (1–30 caracteres). El teléfono es texto para preservar prefijos y
-ceros. Nombre y teléfono eliminan espacios en los extremos; no se aceptan
-campos adicionales. `PUT` requiere los tres campos. FastAPI responde con 422
+`telefono` (entero entre 10000000 y 99999999, exactamente 8 dígitos). El código de
+país es fijo para Costa Rica: `codigo_pais` acepta únicamente el número `506`
+y es opcional en la solicitud, con ese valor predeterminado. No incluir el
+prefijo en `telefono`. Se rechazan teléfonos de texto, decimales, booleanos,
+negativos, cero y números de menos o más de 8 dígitos. Al ser entero no conserva ceros
+iniciales. Nombre elimina espacios en los extremos; no se aceptan campos
+adicionales. `PUT` requiere nombre, correo y teléfono. FastAPI responde con 422
 cuando el cuerpo no cumple el esquema.
 
-La confirmación de eliminación debe implementarse en la interfaz: cancelar no
-debe enviar `DELETE`. Coordinar cambios a archivos compartidos antes de
+La interfaz de eliminación solicita confirmación: cancelar no envía `DELETE`.
+Coordinar cambios a archivos compartidos antes de
 modificarlos. Agregar pruebas por operación en archivos separados y evitar
 reescribir la infraestructura para cada funcionalidad.
+
+## Registrar un cliente
+
+Entrar a `/clientes/crear` desde la página inicial. Completar nombre, correo y
+teléfono y pulsar **Guardar cliente**. El formulario requiere JavaScript, envía
+JSON a `POST /api/clientes` y muestra el identificador después de guardar.
+
+Ejemplo de cuerpo de solicitud, también utilizable desde `/docs`:
+
+```json
+{
+  "nombre": "Cliente de prueba",
+  "correo": "cliente@example.com",
+  "telefono": 88888888,
+  "codigo_pais": 506
+}
+```
+
+La API responde con **201** y los mismos campos más `id`. `codigo_pais` siempre
+es `506`; se determina por el contrato y no requiere una columna en SQLite.
+Los registros se confirman en SQLite antes de responder. Los datos inválidos reciben **422**
+con errores en `detail`, conservando el contrato estándar de FastAPI.
+
+El formulario muestra mensajes en español para campos obligatorios, longitudes
+máximas y correo inválido, incluidos los errores de validación del servidor.
+El campo de teléfono permite solo dígitos y limita la entrada a 8 al escribir
+o pegar. No tiene controles de incremento y exige exactamente 8 dígitos, sin
+cero inicial, antes de enviar.
+Bloquea envíos simultáneos y limpia los campos únicamente después de recibir
+una respuesta de registro confirmada. Ante un error, mantiene los datos y
+muestra el problema; si se pierde la conexión, verificar si el registro se
+guardó antes de reenviar para evitar duplicados. No se exige correo único,
+porque el contrato compartido no establece esa restricción.
+
+FastAPI sirve archivos estáticos desde `/static`. Cada integrante puede añadir
+su página y su script separados usando estos estilos y el mismo montaje; las
+rutas HTML se agregan explícitamente en `app/main.py`.
 
 ## Pruebas
 
@@ -127,8 +177,8 @@ python -m scripts.probar_eliminar
 ```
 
 Abrir <http://127.0.0.1:8002/clientes/eliminar>. El script crea una base temporal
-con los clientes **1** y **2**; no necesita las operaciones de creación o
-consulta aún pendientes. El directorio temporal se elimina al detenerlo con
+con los clientes **1** y **2**; no necesita registrar clientes previamente ni
+depende de la consulta pendiente. El directorio temporal se elimina al detenerlo con
 Ctrl+C y una nueva ejecución vuelve a crear ambos clientes.
 
 1. Ingresar `1` y pulsar **Continuar**. Revisar el identificador del diálogo.
@@ -148,6 +198,15 @@ la API acepta identificadores positivos dentro del rango de enteros de SQLite.
 
 Las capturas y resultados de las comprobaciones realizadas se encuentran en
 [la entrega de Esteban](docs/entrega-esteban.md).
+
+Las pruebas de registro comprueban respuesta 201, identificadores, persistencia,
+límites, errores 422 sin insertar datos y errores de escritura sin respuesta de
+éxito. Para ejecutar las pruebas JavaScript con Node.js 18+ (opcional para
+ejecutar la aplicación):
+
+```bash
+node --test tests/test_crear_ui.cjs
+```
 
 ## Configuración y demostración
 
@@ -181,6 +240,15 @@ No usar `--reload` para la demostración ni exponer esta base a Internet:
 todavía no tiene autenticación. `create_all` crea tablas faltantes, pero **no
 migra tablas existentes**; cualquier cambio posterior al esquema requiere
 acordar una migración.
+
+El teléfono ahora se almacena como `INTEGER`, con una restricción de 10000000 a
+99999999. Las bases de la versión anterior con teléfonos de texto no se
+actualizan automáticamente. Antes de usar esta versión con una base existente,
+respaldar y migrar los datos, o iniciar una base vacía en otro `APP_DATA_DIR`.
+No borrar una base con datos que deban conservarse.
+
+La validación comprueba el formato numérico y el código fijo +506; no verifica
+que la línea exista o esté asignada. Se exigen exactamente 8 dígitos.
 
 Antes del pase, completar el CRUD, ejecutar sus pruebas, registrar la aprobación
 y asociar una etiqueta al commit verificado. Respaldar la base de demostración

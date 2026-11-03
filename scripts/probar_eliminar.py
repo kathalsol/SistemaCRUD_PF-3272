@@ -24,11 +24,11 @@ def main() -> None:
                 session.add_all([
                     Cliente(
                         id=1, nombre="Cliente de prueba 1",
-                        correo="uno@example.com", telefono="8888-8888",
+                        correo="uno@example.com", telefono=88888888,
                     ),
                     Cliente(
                         id=2, nombre="Cliente de prueba 2",
-                        correo="dos@example.com", telefono="7777-7777",
+                        correo="dos@example.com", telefono=77777777,
                     ),
                 ])
                 session.commit()

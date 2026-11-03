@@ -24,7 +24,7 @@ def client(settings: Settings):
 def guardar_cliente(client: TestClient, nombre: str = "Cliente de prueba") -> int:
     with Session(client.app.state.engine) as session:
         cliente = Cliente(
-            nombre=nombre, correo="cliente@example.com", telefono="8888-8888"
+            nombre=nombre, correo="cliente@example.com", telefono=88888888
         )
         session.add(cliente)
         session.commit()
@@ -61,6 +61,24 @@ def test_eliminar_dos_veces_devuelve_404(client: TestClient):
 
     assert client.delete(f"/api/clientes/{cliente_id}").status_code == 204
     assert client.delete(f"/api/clientes/{cliente_id}").status_code == 404
+
+
+def test_eliminar_cliente_registrado_por_api(client: TestClient):
+    creado = client.post("/api/clientes", json={
+        "nombre": "Cliente integrado",
+        "correo": "integrado@example.com",
+        "telefono": 88888888,
+        "codigo_pais": 506,
+    })
+    assert creado.status_code == 201
+    cliente_id = creado.json()["id"]
+
+    eliminado = client.delete(f"/api/clientes/{cliente_id}")
+
+    assert eliminado.status_code == 204
+    assert eliminado.content == b""
+    with Session(client.app.state.engine) as session:
+        assert session.get(Cliente, cliente_id) is None
 
 
 @pytest.mark.parametrize("cliente_id", ["abc", "1.5", "0", "-1", "9223372036854775808"])
