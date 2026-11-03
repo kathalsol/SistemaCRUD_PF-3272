@@ -3,7 +3,8 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
-from sqlalchemy import inspect, select
+from sqlalchemy import Integer, inspect, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import Settings
@@ -28,6 +29,9 @@ def test_inicio_estado_y_documentacion(settings: Settings):
         assert client.get("/docs").status_code == 200
         assert client.get("/openapi.json").status_code == 200
         assert inspect(app.state.engine).get_columns("clientes")
+        columns = inspect(app.state.engine).get_columns("clientes")
+        telefono = next(column for column in columns if column["name"] == "telefono")
+        assert isinstance(telefono["type"], Integer)
     assert settings.database_path.is_file()
 
 
@@ -38,7 +42,7 @@ def test_persistencia_al_reiniciar(settings: Settings):
             cliente = Cliente(
                 nombre="Cliente de prueba",
                 correo="cliente@example.com",
-                telefono="8888-8888",
+                telefono=88888888,
             )
             session.add(cliente)
             session.commit()
@@ -52,7 +56,7 @@ def test_persistencia_al_reiniciar(settings: Settings):
             assert guardado is not None
             assert guardado.nombre == "Cliente de prueba"
             assert guardado.correo == "cliente@example.com"
-            assert guardado.telefono == "8888-8888"
+            assert guardado.telefono == 88888888
 
 
 def test_ambientes_usan_bases_separadas(tmp_path: Path):
@@ -65,7 +69,7 @@ def test_ambientes_usan_bases_separadas(tmp_path: Path):
     app = create_app(development)
     with TestClient(app):
         with Session(app.state.engine) as session:
-            session.add(Cliente(nombre="Solo desarrollo", correo="dev@example.com", telefono="123"))
+            session.add(Cliente(nombre="Solo desarrollo", correo="dev@example.com", telefono=12345678))
             session.commit()
 
     demo_app = create_app(demo)
@@ -77,10 +81,11 @@ def test_ambientes_usan_bases_separadas(tmp_path: Path):
 @pytest.mark.parametrize("schema", [ClienteCrear, ClienteActualizar])
 def test_normaliza_campos(schema):
     cliente = schema(
-        nombre="  Cliente  ", correo="cliente@example.com", telefono=" 8888-8888 "
+        nombre="  Cliente  ", correo="cliente@example.com", telefono=88888888
     )
     assert cliente.nombre == "Cliente"
-    assert cliente.telefono == "8888-8888"
+    assert cliente.telefono == 88888888
+    assert cliente.codigo_pais == 506
 
 
 @pytest.mark.parametrize("schema", [ClienteCrear, ClienteActualizar])
@@ -91,7 +96,15 @@ def test_normaliza_campos(schema):
         {"nombre": "a" * 101},
         {"correo": "correo-invalido"},
         {"telefono": ""},
-        {"telefono": "a" * 31},
+        {"telefono": 100_000_000},
+        {"telefono": 0},
+        {"telefono": 1},
+        {"telefono": 9_999_999},
+        {"telefono": -1},
+        {"telefono": "88888888"},
+        {"telefono": 8888.5},
+        {"telefono": True},
+        {"codigo_pais": 507},
         {"id": 10},
     ],
 )
@@ -99,7 +112,7 @@ def test_rechaza_datos_invalidos(schema, changes):
     datos = {
         "nombre": "Cliente",
         "correo": "cliente@example.com",
-        "telefono": "8888-8888",
+        "telefono": 88888888,
     }
     datos.update(changes)
     with pytest.raises(ValidationError):
@@ -111,8 +124,20 @@ def test_campos_obligatorios(campo):
     datos = {
         "nombre": "Cliente",
         "correo": "cliente@example.com",
-        "telefono": "8888-8888",
+        "telefono": 88888888,
     }
     del datos[campo]
     with pytest.raises(ValidationError):
         ClienteCrear(**datos)
+
+
+@pytest.mark.parametrize("telefono", [0, 1, 9_999_999, -1, 100_000_000, 123.5])
+def test_base_rechaza_telefonos_fuera_del_contrato(settings, telefono):
+    app = create_app(settings)
+    with TestClient(app):
+        with Session(app.state.engine) as session:
+            session.add(
+                Cliente(nombre="Cliente", correo="cliente@example.com", telefono=telefono)
+            )
+            with pytest.raises(IntegrityError):
+                session.commit()

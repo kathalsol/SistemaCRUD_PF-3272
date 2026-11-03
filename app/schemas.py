@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -6,7 +8,8 @@ class ClienteBase(BaseModel):
 
     nombre: str = Field(min_length=1, max_length=100)
     correo: EmailStr = Field(max_length=254)
-    telefono: str = Field(min_length=1, max_length=30)
+    telefono: int = Field(strict=True, ge=10_000_000, le=99_999_999)
+    codigo_pais: Literal[506] = 506
 
 
 class ClienteCrear(ClienteBase):

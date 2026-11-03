@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar cliente | Sistema CRUD</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="/static/js/crear.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Navegaci&oacute;n"><a href="/">Volver al inicio</a></nav>
+      <h1>Registrar cliente</h1>
+      <p>Todos los campos son obligatorios. El identificador se genera al guardar.</p>
+      <noscript><p class="error">Debes activar JavaScript para registrar clientes.</p></noscript>
+      <form id="crear-cliente" novalidate>
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" type="text" required maxlength="100"
+            autocomplete="name" aria-describedby="nombre-error">
+          <p id="nombre-error" class="field-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="correo">Correo electr&oacute;nico</label>
+          <input id="correo" name="correo" type="email" required maxlength="254"
+            autocomplete="email" aria-describedby="correo-error">
+          <p id="correo-error" class="field-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="telefono">Tel&eacute;fono</label>
+          <div class="phone-input">
+            <span class="country-code" aria-label="C&oacute;digo de Costa Rica">+506</span>
+            <input id="telefono" name="telefono" type="tel" required minlength="8"
+              maxlength="8" pattern="[1-9][0-9]{7}" inputmode="numeric" autocomplete="tel-national"
+              aria-describedby="telefono-error">
+          </div>
+          <p id="telefono-error" class="field-error" aria-live="polite"></p>
+        </div>
+        <button id="guardar" type="submit">Guardar cliente</button>
+        <p id="resultado" role="status" aria-live="polite" aria-atomic="true"></p>
+      </form>
+    </main>
+  </body>
+</html>
