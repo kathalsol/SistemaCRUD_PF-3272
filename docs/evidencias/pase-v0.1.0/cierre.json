@@ -1,0 +1,11 @@
+{
+  "fecha_costa_rica": "2026-11-02T23:01:22.036475-06:00",
+  "estado": "SIMULACION COMPLETADA",
+  "version_final_comprobada": "v0.1.0",
+  "sha": "f4a105e08dadd796757de61961e177f5d0ab35c8",
+  "servidor_detenido_al_final": true,
+  "puerto_8015_cerrado": true,
+  "base_de_desarrollo_utilizada": false,
+  "publicacion_en_internet": false,
+  "correcto": true
+}

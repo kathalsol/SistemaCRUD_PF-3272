@@ -1,0 +1,92 @@
+{
+  "fecha_costa_rica": "2026-11-02T22:53:46.052126-06:00",
+  "url": "http://127.0.0.1:8015",
+  "modo": "crud",
+  "comprobaciones": [
+    {
+      "metodo": "GET",
+      "ruta": "/health",
+      "estado": 200,
+      "esperado": 200
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes",
+      "estado": 200,
+      "esperado": 200
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/clientes",
+      "estado": 201,
+      "esperado": 201
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes",
+      "estado": 200,
+      "esperado": 200
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes/2",
+      "estado": 200,
+      "esperado": 200
+    },
+    {
+      "metodo": "PUT",
+      "ruta": "/api/clientes/2",
+      "estado": 200,
+      "esperado": 200
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes/2",
+      "estado": 200,
+      "esperado": 200
+    },
+    {
+      "metodo": "DELETE",
+      "ruta": "/api/clientes/2",
+      "estado": 204,
+      "esperado": 204
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes/2",
+      "estado": 404,
+      "esperado": 404
+    },
+    {
+      "metodo": "DELETE",
+      "ruta": "/api/clientes/2",
+      "estado": 404,
+      "esperado": 404
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes",
+      "estado": 200,
+      "esperado": 200
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/clientes",
+      "estado": 201,
+      "esperado": 201
+    }
+  ],
+  "correcto": true,
+  "health": {
+    "status": "ok",
+    "environment": "demo"
+  },
+  "cliente_persistente": {
+    "nombre": "Prueba de pase 1620c3b63adc",
+    "correo": "pase.1620c3b63adc@example.com",
+    "telefono": 88888888,
+    "codigo_pais": 506,
+    "id": 2
+  },
+  "otros_clientes_conservados": true
+}

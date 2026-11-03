@@ -1,0 +1,74 @@
+{
+  "fecha_restauracion_costa_rica": "2026-11-02T22:59:55.925236-06:00",
+  "codigo_destino": "87f549edef3539ac561c9c6c172597f485033f7b",
+  "instancia_detenida": true,
+  "respaldo_restaurado": "respaldo/demo-antes-v0.1.0.db",
+  "sha256_restaurado": "13819436cc746a419e9abc823fd82ce627ada41f97e38e111406820d86fbf94b",
+  "respaldo_previo_a_reversion": "respaldo/demo-despues-pruebas.db",
+  "sha256_previo_a_reversion": "5de99a276352e53786c2b2901227e7f82db6984604ff0d37c29c4b83c0994996",
+  "clientes_antes": [
+    1,
+    2
+  ],
+  "clientes_despues": [
+    1
+  ],
+  "cambio_datos": "Se retiró el cliente sintético 2, creado después del respaldo; su estado se conserva en el respaldo posterior.",
+  "integridad": "ok",
+  "estado": "verificado",
+  "fecha_verificacion_costa_rica": "2026-11-02T23:00:10.436788-06:00",
+  "comprobaciones_http": [
+    {
+      "metodo": "GET",
+      "ruta": "/health",
+      "estado": 200
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes",
+      "estado": 200
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes/1",
+      "estado": 200
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes/2",
+      "estado": 404
+    },
+    {
+      "metodo": "PUT",
+      "ruta": "/api/clientes/1",
+      "estado": 405
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes/1",
+      "estado": 200
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/clientes",
+      "estado": 201
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes/2",
+      "estado": 200
+    },
+    {
+      "metodo": "DELETE",
+      "ruta": "/api/clientes/2",
+      "estado": 204
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/clientes",
+      "estado": 200
+    }
+  ],
+  "limitacion_esperada": "La versión anterior dispone de crear/consultar/eliminar; editar todavía no existía y PUT devuelve 405.",
+  "correcto": true
+}

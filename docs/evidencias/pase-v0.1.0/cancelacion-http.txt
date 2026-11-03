@@ -1,0 +1,9 @@
+INFO:     127.0.0.1:50691 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50692 - "GET /clientes/crear HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50693 - "GET /clientes/consultar HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50694 - "GET /clientes/editar HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50695 - "GET /clientes/eliminar HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58312 - "GET /clientes/eliminar?cliente_id=2 HTTP/1.1" 200 O
+OK
+INFO:     127.0.0.1:58312 - "GET /static/css/eliminar.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59583 - "GET /static/js/eliminar.js HTTP/1.1" 200 OK

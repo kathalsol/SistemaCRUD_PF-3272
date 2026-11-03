@@ -1,0 +1,19 @@
+{
+  "fecha_costa_rica": "2026-11-02T22:54:31.778826-06:00",
+  "version": "v0.1.0",
+  "sha": "f4a105e08dadd796757de61961e177f5d0ab35c8",
+  "origen": "checkout independiente del tag, sin cambios de aplicación",
+  "ambiente": "demo",
+  "url": "http://127.0.0.1:8015",
+  "comando": "APP_ENVIRONMENT=demo APP_DATA_DIR=<simulacion>/datos-demo python -m uvicorn app.main:app --host 127.0.0.1 --port 8015 --no-use-colors",
+  "base": "<simulacion>/datos-demo/demo.db",
+  "reload": false,
+  "paginas": {
+    "/": 200,
+    "/clientes/crear": 200,
+    "/clientes/consultar": 200,
+    "/clientes/editar": 200,
+    "/clientes/eliminar": 200
+  },
+  "correcto": true
+}

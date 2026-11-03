@@ -75,11 +75,11 @@ y seguir los pasos del README. El script utiliza el puerto 8002.
 Este archivo es el aporte y registro de Esteban; **no es el documento final
 del equipo**. Se prepara con material verificable de los cuatro integrantes.
 
-| Página | Contenido por integrar | Material pendiente |
+| Página | Contenido por integrar | Material para integrar |
 | --- | --- | --- |
-| 1 | Responsables, ramas, commits, PR y revisiones | Enlaces y explicaciones de todos; revisiones concluidas |
-| 2 | Conflicto y solución; validación del CRUD | Evidencias del conflicto acordado y validación integrada de Ney |
-| 3 | Versión, autorización, despliegue y reversión | Versión/SHA y registros de Roberto; verificación posterior de Ney |
+| 1 | Responsables, ramas, commits, PR y revisiones | Enlaces y explicaciones de todos; [revisiones concluidas](evidencias/pase-v0.1.0/condiciones-previas.json) |
+| 2 | Conflicto y solución; validación del CRUD | Resolución en PR #5 y [validación del CRUD integrado](pase-v0.1.0.md) |
+| 3 | Versión, autorización, despliegue y reversión | Integrar el [pase local ejecutado](pase-v0.1.0.md), su autorización y sus evidencias |
 
 Incorporar las capturas de esta carpeta con pies que identifiquen la prueba;
 seleccionar solo las necesarias para respetar el límite de tres páginas.
@@ -97,27 +97,36 @@ Pendientes los clips/explicaciones de todos. Las capturas de Esteban ya están
 disponibles. No se ha editado ni publicado un video final. Antes de entregar,
 revisar duración, legibilidad y acceso de la docente al enlace.
 
-## Revisión y autorización pendientes
+## Integración y autorización actualizadas al 2 de noviembre de 2026
 
-- Katharina es la revisora asignada al PR de Esteban hacia `dev`.
-- Esteban debe revisar el PR de edición de Roberto y probarlo antes de aprobar.
-  En la consulta inicial del repositorio ese PR aún no estaba disponible.
-- La evidencia de conflicto requiere dos aportaciones acordadas. No se ha
-  provocado ni atribuido un conflicto inexistente.
-- La validación completa, las protecciones, la integración en `main`, la versión
-  verificada y el respaldo no se acreditan con estas pruebas individuales.
+- Katharina aprobó el PR #3 de Esteban y el PR #5 de resolución del conflicto
+  entre registro y eliminación; ambos quedaron integrados.
+- Esteban revisó el PR #6 de Ney, solicitó corregir las consultas simultáneas y
+  aprobó la corrección. Ney revisó y aprobó el PR #4 de edición de Roberto.
+- El conflicto real y su resolución sin perder funcionalidades están registrados
+  en el PR #5.
+- La versión integrada se identificó como v0.1.0 y se ejecutó el
+  [pase local con pruebas, respaldo, verificación y reversión](pase-v0.1.0.md).
+- Las comprobaciones anteriores de este archivo corresponden al aporte original
+  de eliminación. El registro del pase contiene los resultados actualizados del
+  sistema integrado. La ejecución del ensayo fue asistida por Codex a solicitud
+  de Esteban, sin atribuirla a Ney o Roberto.
 
 ### Registro de autorización del pase
 
-**Estado: PENDIENTE; pase no autorizado.** Completar únicamente cuando se
-cumplan las condiciones del plan del equipo.
+**Estado: AUTORIZADO PARA SIMULACIÓN LOCAL; ejecución completada y verificada.**
+Esteban solicitó realizar y registrar este ensayo. La autorización se registró
+el 2 de noviembre de 2026 a las 22:53:28, hora de Costa Rica, después de comprobar
+las condiciones y antes del arranque de v0.1.0. El alcance es exclusivamente el
+ambiente demo local con datos sintéticos descrito en el registro.
 
-| Campo | Valor por registrar |
+| Campo | Registro |
 | --- | --- |
-| Versión y SHA verificados en main | Pendiente de Roberto y Ney |
-| PR aprobados y revisiones | Pendientes de integración |
-| Resultado de validación integral y enlace | Pendiente de Ney |
-| Ambiente y procedimiento de despliegue | Pendiente de Roberto |
-| Respaldo previo y procedimiento de reversión comprobado | Pendiente de Roberto |
-| Autorización, responsable y fecha/hora de Costa Rica | Pendiente de Esteban tras verificar las condiciones |
-| Comprobación posterior al despliegue | Pendiente de Ney tras el pase |
+| Versión y SHA verificados en main | v0.1.0, `f4a105e08dadd796757de61961e177f5d0ab35c8` |
+| PR aprobados y revisiones | #2, #3, #4, #5 y #6; [condiciones previas](evidencias/pase-v0.1.0/condiciones-previas.json) |
+| Pruebas de la versión | 127 Python y 81 JavaScript aprobadas sobre el código del tag |
+| Ambiente y procedimiento | Demo en `127.0.0.1:8015`, SQLite independiente; [procedimiento](procedimiento-pase.md) |
+| Respaldo y reversión | Respaldo íntegro restaurado y versión anterior comprobada; [evidencia](evidencias/pase-v0.1.0/reversion.json) |
+| Autorización | Esteban (`Tebansus`), 2026-11-02 22:53:28 UTC-06:00; [registro](evidencias/pase-v0.1.0/autorizacion.json) |
+| Verificación posterior | CRUD, interfaz y reinicio comprobados; [registro completo](pase-v0.1.0.md) |
+| Cierre | v0.1.0 comprobada nuevamente tras la reversión; servidor detenido a las 23:01 |
