@@ -12,7 +12,7 @@ from app.models import Cliente
 DATOS_NUEVOS = {
     "nombre": "Cliente editado",
     "correo": "editado@example.com",
-    "telefono": "7777-7777",
+    "telefono": 77777777,
 }
 
 
@@ -34,7 +34,7 @@ def cliente_id(app: FastAPI, client: TestClient) -> int:
         cliente = Cliente(
             nombre="Cliente original",
             correo="original@example.com",
-            telefono="8888-8888",
+            telefono=88888888,
         )
         session.add(cliente)
         session.commit()
@@ -45,7 +45,7 @@ def test_editar_cliente(app: FastAPI, client: TestClient, cliente_id: int):
     response = client.put(f"/api/clientes/{cliente_id}", json=DATOS_NUEVOS)
 
     assert response.status_code == 200
-    assert response.json() == {"id": cliente_id, **DATOS_NUEVOS}
+    assert response.json() == {"id": cliente_id, "codigo_pais": 506, **DATOS_NUEVOS}
 
     with Session(app.state.engine) as session:
         guardado = session.get(Cliente, cliente_id)
@@ -57,12 +57,12 @@ def test_editar_cliente(app: FastAPI, client: TestClient, cliente_id: int):
 def test_editar_cliente_normaliza_campos(client: TestClient, cliente_id: int):
     response = client.put(
         f"/api/clientes/{cliente_id}",
-        json={**DATOS_NUEVOS, "nombre": "  Cliente  ", "telefono": " 7777-7777 "},
+        json={**DATOS_NUEVOS, "nombre": "  Cliente  "},
     )
 
     assert response.status_code == 200
     assert response.json()["nombre"] == "Cliente"
-    assert response.json()["telefono"] == "7777-7777"
+    assert response.json()["telefono"] == 77777777
 
 
 def test_editar_cliente_inexistente(client: TestClient):
@@ -78,6 +78,10 @@ def test_editar_cliente_inexistente(client: TestClient):
         {"nombre": "   "},
         {"correo": "correo-invalido"},
         {"telefono": ""},
+        {"telefono": "77777777"},
+        {"telefono": 1234567},
+        {"telefono": 100000000},
+        {"codigo_pais": 1},
         {"id": 10},
     ],
 )

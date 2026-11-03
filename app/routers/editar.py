@@ -17,7 +17,7 @@ def editar_cliente(
     if cliente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Cliente no encontrado")
 
-    for campo, valor in datos.model_dump().items():
+    for campo, valor in datos.model_dump(exclude={"codigo_pais"}).items():
         setattr(cliente, campo, valor)
 
     session.commit()

@@ -12,11 +12,11 @@ from app.database import create_database_engine
 from app.models import Base, Cliente
 
 CLIENTES_EJEMPLO = [
-    {"nombre": "Ana Rodríguez", "correo": "ana.rodriguez@example.com", "telefono": "8812-3456"},
-    {"nombre": "Carlos Jiménez", "correo": "carlos.jimenez@example.com", "telefono": "8723-4567"},
-    {"nombre": "María Fernández", "correo": "maria.fernandez@example.com", "telefono": "6034-5678"},
-    {"nombre": "José Vargas", "correo": "jose.vargas@example.com", "telefono": "7145-6789"},
-    {"nombre": "Laura Mora", "correo": "laura.mora@example.com", "telefono": "+506 2256-7890"},
+    {"nombre": "Ana Rodríguez", "correo": "ana.rodriguez@example.com", "telefono": 88123456},
+    {"nombre": "Carlos Jiménez", "correo": "carlos.jimenez@example.com", "telefono": 87234567},
+    {"nombre": "María Fernández", "correo": "maria.fernandez@example.com", "telefono": 60345678},
+    {"nombre": "José Vargas", "correo": "jose.vargas@example.com", "telefono": 71456789},
+    {"nombre": "Laura Mora", "correo": "laura.mora@example.com", "telefono": 22567890},
 ]
 
 

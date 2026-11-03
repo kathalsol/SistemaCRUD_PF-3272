@@ -42,7 +42,7 @@
           <input id="correo" type="email" maxlength="254" required>
         </label>
         <label>Tel&eacute;fono
-          <input id="telefono" maxlength="30" required>
+          <input id="telefono" type="tel" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" required>
         </label>
         <button type="submit" id="guardar">Guardar cambios</button>
       </form>
@@ -92,6 +92,7 @@
         if (!id) return mostrar("Ingrese el ID del cliente.", "error");
 
         const datos = Object.fromEntries(campos.map((campo) => [campo, $(campo).value]));
+        datos.telefono = Number(datos.telefono);
         $("guardar").disabled = true;
         try {
           const respuesta = await fetch(`/api/clientes/${id}`, {
