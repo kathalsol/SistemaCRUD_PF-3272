@@ -198,18 +198,20 @@ directamente, usar `/clientes/consultar?cliente_id=ID`.
 ## Editar un cliente
 
 Entrar a `/clientes/editar` desde la página inicial o con **Editar** en el
-listado de consulta. Escribir el identificador y pulsar **Cargar**: la pantalla
-llama a `GET /api/clientes/{cliente_id}` y llena nombre, correo y teléfono. El
-formulario permanece bloqueado hasta cargar un cliente. Con **404** informa que
-el cliente no existe; los identificadores que no son enteros positivos se
-rechazan sin llamar a la API.
+listado de consulta. La lista **Cliente** se llena con `GET /api/clientes` y
+muestra cada identificador con su nombre. Al elegir uno, la pantalla llama a
+`GET /api/clientes/{cliente_id}` y llena nombre, correo y teléfono. El
+formulario permanece bloqueado hasta cargar un cliente. Si no hay clientes, la
+lista lo indica; si el cliente elegido fue eliminado mientras tanto, se informa
+y se quita de la lista. `?cliente_id=ID` lo selecciona y carga al abrir la
+pantalla.
 
 Modificar los datos y pulsar **Guardar cambios** envía JSON a
 `PUT /api/clientes/{cliente_id}` usando siempre el identificador del cliente
-cargado. Si se cambia el identificador después de cargar, el formulario se
-vacía y se bloquea hasta volver a pulsar **Cargar**, de modo que no se puedan
-guardar los datos de un cliente sobre otro. Si llegan respuestas de cargas
-anteriores fuera de orden, se descartan.
+cargado. Elegir otro cliente reemplaza los datos del formulario, de modo que no
+se puedan guardar los datos de un cliente sobre otro. Si llegan respuestas de
+cargas anteriores fuera de orden, se descartan. Al guardar se actualiza el
+nombre mostrado en la lista.
 
 El teléfono muestra el prefijo fijo **+506** y acepta solo los 8 dígitos del
 número, como en el registro. Los mensajes de validación aparecen en español

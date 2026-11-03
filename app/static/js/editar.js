@@ -1,8 +1,6 @@
 "use strict";
 
-const formularioCarga = document.getElementById("cargar-cliente");
-const entradaId = document.getElementById("cliente-id");
-const cargar = document.getElementById("cargar");
+const selector = document.getElementById("cliente-id");
 const formulario = document.getElementById("editar-cliente");
 const datosCliente = document.getElementById("datos-cliente");
 const guardar = document.getElementById("guardar");
@@ -11,7 +9,7 @@ const campos = ["nombre", "correo", "telefono"];
 const limites = { nombre: 100, correo: 254, telefono: 8 };
 
 // Identificador del cliente cuyos datos están en el formulario. Guardar usa
-// siempre este valor, nunca el texto actual del campo de identificador.
+// siempre este valor, nunca la opción seleccionada en ese momento.
 let idCargado = null;
 let enviando = false;
 
@@ -92,7 +90,10 @@ async function cargarCliente(id) {
       datosCliente.disabled = false;
       mostrarResultado(`Cliente ${id} cargado. Modifica los datos y pulsa Guardar cambios.`, "");
     } else if (respuesta.status === 404) {
-      mostrarResultado(`No existe un cliente con identificador ${id}.`, "error");
+      // Otro usuario lo eliminó después de cargar la lista.
+      opcionDe(id)?.remove();
+      selector.value = "";
+      mostrarResultado(`El cliente ${id} ya no existe.`, "error");
     } else {
       mostrarResultado(`El servidor devolvió un error (${respuesta.status}). No se pudo cargar el cliente.`, "error");
     }
@@ -105,32 +106,61 @@ async function cargarCliente(id) {
   }
 }
 
-// Cambiar el identificador invalida el cliente cargado: hay que volver a cargar.
-entradaId.addEventListener("input", () => {
-  mostrarError("cliente-id", "");
-  if (idCargado === null && controladorConsulta === null) return;
-  descartarConsultaPendiente();
-  descartarCliente();
-  mostrarResultado("Pulsa Cargar para editar el cliente con este identificador.", "");
-});
+function crearOpcion(valor, texto) {
+  const opcion = document.createElement("option");
+  opcion.value = valor;
+  opcion.textContent = texto;
+  return opcion;
+}
 
-formularioCarga.addEventListener("submit", (evento) => {
-  evento.preventDefault();
-  if (enviando) return;
-  entradaId.value = entradaId.value.trim();
-  if (!entradaId.value) {
-    mostrarError("cliente-id", "Este campo es obligatorio.");
-  } else if (!idValido(entradaId.value)) {
-    mostrarError("cliente-id", "Ingresa un identificador entero positivo.");
-  } else {
-    mostrarError("cliente-id", "");
-    cargarCliente(entradaId.value);
+function textoOpcion(cliente) {
+  return `${cliente.id} - ${cliente.nombre}`;
+}
+
+function opcionDe(id) {
+  return [...selector.options].find((opcion) => opcion.value === id);
+}
+
+// Llena la lista con los clientes registrados, ordenados por identificador.
+async function cargarListado(idInicial) {
+  try {
+    const respuesta = await fetch("/api/clientes");
+    if (respuesta.status !== 200) {
+      throw new Error(`Respuesta inesperada del listado: ${respuesta.status}`);
+    }
+    const clientes = await respuesta.json();
+    if (clientes.length === 0) {
+      selector.replaceChildren(crearOpcion("", "No hay clientes registrados"));
+      mostrarResultado("No hay clientes registrados para editar.", "");
+      return;
+    }
+    selector.replaceChildren(
+      crearOpcion("", "Selecciona un cliente"),
+      ...clientes.map((cliente) => crearOpcion(String(cliente.id), textoOpcion(cliente))),
+    );
+    selector.disabled = false;
+    if (idInicial && opcionDe(idInicial)) {
+      selector.value = idInicial;
+      cargarCliente(idInicial);
+    } else if (idInicial) {
+      mostrarResultado(`No existe un cliente con identificador ${idInicial}.`, "error");
+    }
+  } catch (error) {
+    console.error("Error al cargar la lista de clientes:", error);
+    selector.replaceChildren(crearOpcion("", "Lista no disponible"));
+    mostrarResultado("No se pudo cargar la lista de clientes. Revisa la conexi\u00f3n y recarga la p\u00e1gina.", "error");
+  }
+}
+
+// Elegir otro cliente descarta el cargado y trae los datos del nuevo.
+selector.addEventListener("change", () => {
+  if (selector.value) {
+    cargarCliente(selector.value);
     return;
   }
   descartarConsultaPendiente();
   descartarCliente();
   mostrarResultado("", "");
-  entradaId.focus();
 });
 
 formulario.addEventListener("submit", async (evento) => {
@@ -169,8 +199,7 @@ formulario.addEventListener("submit", async (evento) => {
   const id = idCargado;
   enviando = true;
   guardar.disabled = true;
-  entradaId.disabled = true;
-  cargar.disabled = true;
+  selector.disabled = true;
   formulario.setAttribute("aria-busy", "true");
   mostrarResultado("Guardando cambios...", "");
   try {
@@ -196,6 +225,8 @@ formulario.addEventListener("submit", async (evento) => {
     }
     if (respuesta.status === 404) {
       descartarCliente();
+      opcionDe(id)?.remove();
+      selector.value = "";
       mostrarResultado(`El cliente ${id} ya no existe. No se guardaron los cambios.`, "error");
       return;
     }
@@ -210,25 +241,23 @@ formulario.addEventListener("submit", async (evento) => {
     for (const campo of campos) {
       document.getElementById(campo).value = String(cliente[campo]);
     }
+    const opcion = opcionDe(id);
+    if (opcion) opcion.textContent = textoOpcion({ id, nombre: cliente.nombre });
     mostrarResultado(`Cliente ${id} actualizado correctamente.`, "success");
   } catch (error) {
     console.error("Error al editar el cliente:", error);
     mostrarResultado(
-      "No se pudo confirmar la edición. Revisa la conexión y vuelve a cargar el cliente para verificar si se guardó. Los datos permanecen en el formulario.",
+      "No se pudo confirmar la edición. Revisa la conexión y vuelve a seleccionar el cliente para verificar si se guardó. Los datos permanecen en el formulario.",
       "error",
     );
   } finally {
     enviando = false;
     guardar.disabled = false;
-    entradaId.disabled = false;
-    cargar.disabled = false;
+    selector.disabled = false;
     formulario.setAttribute("aria-busy", "false");
   }
 });
 
 // Permite enlazar directamente a la edición: /clientes/editar?cliente_id=ID
 const idInicial = new URLSearchParams(window.location.search).get("cliente_id");
-if (idInicial && idValido(idInicial)) {
-  entradaId.value = idInicial;
-  cargarCliente(idInicial);
-}
+cargarListado(idInicial && idValido(idInicial) ? idInicial : null);

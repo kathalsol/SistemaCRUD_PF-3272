@@ -140,7 +140,8 @@ def test_pantalla_y_recursos_disponibles(client: TestClient):
     assert "text/html" in pagina.headers["content-type"]
     assert 'href="/static/css/styles.css"' in pagina.text
     assert 'src="/static/js/editar.js"' in pagina.text
-    for campo in ["cliente-id", "nombre", "correo", "telefono"]:
+    assert '<select id="cliente-id"' in pagina.text
+    for campo in ["nombre", "correo", "telefono"]:
         assert f'id="{campo}"' in pagina.text
         assert f'id="{campo}-error"' in pagina.text
     assert 'type="tel"' in pagina.text
