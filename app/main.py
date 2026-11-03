@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -34,10 +35,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     application.state.settings = configuration
     application.include_router(router)
+    application.mount(
+        "/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static"
+    )
 
     @application.get("/", include_in_schema=False)
     def inicio() -> FileResponse:
         return FileResponse(Path(__file__).parent / "templates" / "index.html")
+
+    @application.get("/clientes/eliminar", include_in_schema=False)
+    def formulario_eliminar() -> FileResponse:
+        return FileResponse(Path(__file__).parent / "templates" / "eliminar.html")
 
     @application.get("/health", tags=["Sistema"], response_model=EstadoRespuesta)
     def health(session: Session = Depends(get_session)) -> EstadoRespuesta:

@@ -1,0 +1,11 @@
+Cancelar: clientes presentes [1, 2]; peticiones DELETE: 0.
+Escape: cliente 1 permanece; peticiones DELETE: 0.
+Confirmar: cliente 1 ausente; cliente 2 permanece.
+Repetir eliminacion: 404; sin cambios adicionales.
+"DELETE /api/clientes/1 HTTP/1.1" 204 No Content
+"DELETE /api/clientes/1 HTTP/1.1" 404 Not Found
+ID fuera de rango: formulario invalido; no abre dialogo.
+Enlace ?cliente_id=2: precarga ID 2 sin eliminarlo.
+Servidor detenido: mensaje de conexion; controles disponibles; cliente 2 permanece.
+Total recibido por el servidor: 2 DELETE (204 y 404).
+Lanzador reproducible: /health indica test; pagina 200; clientes [1, 2]; Ctrl+C cierra el servidor y elimina su directorio temporal.

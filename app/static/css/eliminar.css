@@ -1,0 +1,21 @@
+body { margin: 0; background: #f1f5f9; color: #172033; font-family: system-ui, sans-serif; line-height: 1.5; }
+main { max-width: 720px; margin: 8vh auto; padding: 2rem; background: white; border-radius: 12px; }
+h1 { margin-bottom: .5rem; }
+h2 { margin-top: 0; }
+a { color: #1748b5; }
+.notice { padding: 1rem; background: #eff6ff; border-left: 4px solid #1748b5; }
+label { display: block; margin-top: 1.5rem; font-weight: 600; }
+input { box-sizing: border-box; width: 100%; max-width: 360px; padding: .7rem; margin-top: .4rem; border: 1px solid #64748b; border-radius: 6px; font: inherit; }
+.help { margin-top: .4rem; color: #475569; font-size: .9rem; }
+button { padding: .75rem 1rem; border: 1px solid transparent; border-radius: 6px; background: #1748b5; color: white; font: inherit; font-weight: 600; cursor: pointer; }
+button:disabled { opacity: .6; cursor: wait; }
+:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.secondary { color: #172033; background: white; border-color: #64748b; }
+.danger { background: #b42318; }
+.error { color: #b42318; }
+.success { color: #166534; }
+#resultado:empty { display: none; }
+dialog { box-sizing: border-box; width: min(520px, calc(100% - 2rem)); padding: 1.75rem; border: 0; border-radius: 12px; color: #172033; }
+dialog::backdrop { background: rgb(15 23 42 / 55%); }
+.actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+@media (max-width: 760px) { main { margin: 1rem; padding: 1.5rem; } }
