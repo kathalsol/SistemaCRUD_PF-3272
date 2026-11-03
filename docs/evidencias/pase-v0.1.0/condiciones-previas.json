@@ -1,0 +1,91 @@
+{
+  "fecha_costa_rica": "2026-11-02T22:52:36.932493-06:00",
+  "version": "v0.1.0",
+  "sha": "f4a105e08dadd796757de61961e177f5d0ab35c8",
+  "sha_reversion": "87f549edef3539ac561c9c6c172597f485033f7b",
+  "esquema_compatible_para_reversion": true,
+  "python": "3.12.3",
+  "node": "v24.11.1",
+  "pruebas_python": 127,
+  "pruebas_javascript": 81,
+  "prs": [
+    {
+      "numero": 2,
+      "url": "https://github.com/kathalsol/SistemaCRUD_PF-3272/pull/2",
+      "autor": "kathalsol",
+      "aprobaciones": [
+        "BetoCR16"
+      ],
+      "integrado": true,
+      "sha_integrado": "9122f05de576ab88c0e86d4aad4f233eb32c34c4"
+    },
+    {
+      "numero": 3,
+      "url": "https://github.com/kathalsol/SistemaCRUD_PF-3272/pull/3",
+      "autor": "Tebansus",
+      "aprobaciones": [
+        "kathalsol"
+      ],
+      "integrado": true,
+      "sha_integrado": "76979a926df20c5715e171485a5f89bceb803bac"
+    },
+    {
+      "numero": 4,
+      "url": "https://github.com/kathalsol/SistemaCRUD_PF-3272/pull/4",
+      "autor": "BetoCR16",
+      "aprobaciones": [
+        "jmnzcn"
+      ],
+      "integrado": true,
+      "sha_integrado": "f4a105e08dadd796757de61961e177f5d0ab35c8"
+    },
+    {
+      "numero": 5,
+      "url": "https://github.com/kathalsol/SistemaCRUD_PF-3272/pull/5",
+      "autor": "Tebansus",
+      "aprobaciones": [
+        "kathalsol"
+      ],
+      "integrado": true,
+      "sha_integrado": "056073332e73e5696d3e23ad507774a5eef323a2"
+    },
+    {
+      "numero": 6,
+      "url": "https://github.com/kathalsol/SistemaCRUD_PF-3272/pull/6",
+      "autor": "jmnzcn",
+      "aprobaciones": [
+        "Tebansus"
+      ],
+      "integrado": true,
+      "sha_integrado": "87f549edef3539ac561c9c6c172597f485033f7b"
+    }
+  ],
+  "reglas_main": [
+    {
+      "tipo": "deletion",
+      "parametros": null
+    },
+    {
+      "tipo": "non_fast_forward",
+      "parametros": null
+    },
+    {
+      "tipo": "pull_request",
+      "parametros": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": true,
+        "required_review_thread_resolution": true,
+        "require_extra_approval_for_unattributed_changes": true,
+        "allowed_merge_methods": [
+          "merge",
+          "squash",
+          "rebase"
+        ]
+      }
+    }
+  ],
+  "correcto": true
+}

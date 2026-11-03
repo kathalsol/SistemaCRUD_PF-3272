@@ -1,0 +1,25 @@
+{
+  "fecha_costa_rica": "2026-11-02T22:53:28.304575-06:00",
+  "estado": "AUTORIZADO PARA SIMULACION LOCAL",
+  "autoriza": "Esteban (Tebansus)",
+  "fundamento": "Solicitud explícita de Esteban en esta conversación para ejecutar y documentar la simulación y completar el registro de autorización; condiciones verificadas antes de iniciar v0.1.0.",
+  "registro_y_ejecucion": "Codex, por instrucción de Esteban; no se atribuye ejecución manual a otros integrantes.",
+  "version": "v0.1.0",
+  "sha": "f4a105e08dadd796757de61961e177f5d0ab35c8",
+  "alcance": "Instancia demo en http://127.0.0.1:8015 con SQLite independiente y datos sintéticos; sin publicación en Internet.",
+  "condiciones": [
+    "PR de funcionalidades e integración aprobados y fusionados",
+    "Tag coincide con main",
+    "127 pruebas Python y 81 JavaScript aprobadas en el código del tag",
+    "Ambiente demo separado de desarrollo",
+    "Respaldo íntegro con instancia detenida",
+    "Versión anterior disponible y esquema compatible para ensayar reversión"
+  ],
+  "evidencias": [
+    "condiciones-previas.json",
+    "pytest.txt",
+    "node.txt",
+    "respaldo.json"
+  ],
+  "version_reversion": "87f549edef3539ac561c9c6c172597f485033f7b"
+}

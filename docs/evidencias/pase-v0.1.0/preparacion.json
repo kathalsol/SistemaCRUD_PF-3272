@@ -1,0 +1,16 @@
+{
+  "fecha_costa_rica": "2026-11-02T22:53:23.762545-06:00",
+  "sha": "87f549edef3539ac561c9c6c172597f485033f7b",
+  "health": {
+    "status": "ok",
+    "environment": "demo"
+  },
+  "cliente_previo": {
+    "nombre": "Cliente previo al pase",
+    "correo": "previo@example.com",
+    "telefono": 22223333,
+    "codigo_pais": 506,
+    "id": 1
+  },
+  "correcto": true
+}

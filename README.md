@@ -103,7 +103,8 @@ scripts/
   probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
   seed.py               Clientes de ejemplo
 docs/
-  entrega-esteban.md    Evidencias, aporte y pendientes de entrega
+  pase-v0.1.0.md        Registro del pase y evidencias de verificación
+  procedimiento-pase.md Procedimiento reproducible de despliegue y reversión
 ```
 
 Los cuatro routers están conectados y sus endpoints implementados según el
@@ -268,7 +269,7 @@ La pantalla acepta enteros positivos representables con exactitud por JavaScript
 la API acepta identificadores positivos dentro del rango de enteros de SQLite.
 
 Las capturas y resultados de las comprobaciones realizadas se encuentran en
-[la entrega de Esteban](docs/entrega-esteban.md).
+[el registro de verificación del pase](docs/pase-v0.1.0.md).
 
 Las pruebas de registro comprueban respuesta 201, identificadores, persistencia,
 límites, errores 422 sin insertar datos y errores de escritura sin respuesta de
@@ -328,6 +329,24 @@ la instancia, recuperar la versión anterior y restaurar el respaldo únicamente
 si corresponde: esto elimina los cambios de datos posteriores al respaldo.
 Reiniciar y comprobar `/health` y el CRUD; regresar al código anterior no
 revierte automáticamente los datos.
+
+## Pase a demostración verificado
+
+La simulación local de **v0.1.0**, commit
+`f4a105e08dadd796757de61961e177f5d0ab35c8`, se ejecutó y verificó el 2 de
+noviembre de 2026. Incluye autorización de Esteban para el ensayo, pruebas del
+tag, respaldo, CRUD posterior al despliegue, cancelación en navegador,
+persistencia tras reiniciar y reversión con restauración de SQLite.
+
+- [Registro del pase y evidencias](docs/pase-v0.1.0.md).
+- [Procedimiento reproducible y pasos automatizables](docs/procedimiento-pase.md).
+- [Autorización registrada](docs/evidencias/pase-v0.1.0/autorizacion.json).
+
+`scripts/verificar_demo.py` comprueba una instancia HTTP local con
+`environment=demo`; utiliza datos sintéticos propios y produce un registro JSON.
+Se ejecuta desde el checkout de herramientas contra la instancia del tag, que
+no fue modificado. La demostración estuvo limitada a `127.0.0.1` y su servidor
+se detuvo al finalizar. El documento final del equipo y el video siguen pendientes.
 
 ## Colaboración
 

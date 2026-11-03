@@ -1,0 +1,28 @@
+{
+  "fecha_costa_rica": "2026-11-02T22:55:12.012918-06:00",
+  "url": "http://127.0.0.1:8015",
+  "cancelar_y_escape": {
+    "cliente_id": 2,
+    "permanece_sin_cambios": true,
+    "peticiones_delete": 0,
+    "registro_http": "cancelacion-http.txt"
+  },
+  "cliente_para_confirmacion": {
+    "nombre": "Cliente confirmacion demo",
+    "correo": "confirmar@example.com",
+    "telefono": 87654321,
+    "codigo_pais": 506,
+    "id": 3
+  },
+  "estado": "verificado",
+  "confirmacion": {
+    "cliente_id": 3,
+    "mensaje_interfaz": "Cliente 3 eliminado correctamente.",
+    "consulta_posterior": 404,
+    "otros_clientes": [
+      1,
+      2
+    ]
+  },
+  "correcto": true
+}

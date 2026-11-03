@@ -1,0 +1,15 @@
+{
+  "fecha_costa_rica": "2026-11-02T22:53:28.303073-06:00",
+  "archivo": "respaldo/demo-antes-v0.1.0.db",
+  "sha256": "13819436cc746a419e9abc823fd82ce627ada41f97e38e111406820d86fbf94b",
+  "integridad": "ok",
+  "clientes": [
+    [
+      1,
+      "Cliente previo al pase",
+      "previo@example.com",
+      22223333
+    ]
+  ],
+  "servidor_detenido": true
+}
