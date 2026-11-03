@@ -3,153 +3,62 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Editar cliente</title>
-    <style>
-      body { margin: 0; background: #f1f5f9; color: #172033; font-family: system-ui, sans-serif; }
-      main { max-width: 520px; margin: 8vh auto; padding: 2rem; background: white; border-radius: 12px; }
-      h1 { margin-top: 0; }
-      a { color: #1748b5; }
-      label { display: block; margin-top: 1rem; font-weight: 600; }
-      input { box-sizing: border-box; width: 100%; margin-top: .3rem; padding: .55rem; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
-      .fila { display: flex; gap: .5rem; align-items: end; }
-      .fila label { flex: 1; }
-      .telefono { display: flex; align-items: center; gap: .5rem; margin-top: .3rem; }
-      .telefono input { margin-top: 0; }
-      .prefijo { padding: .55rem; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; white-space: nowrap; }
-      .ayuda { margin: .3rem 0 0; color: #475569; font-size: .9rem; }
-      .error-campo { margin: .3rem 0 0; color: #b91c1c; font-size: .9rem; }
-      .error-campo:empty { display: none; }
-      button { margin-top: 1.2rem; padding: .6rem 1.2rem; border: 0; border-radius: 6px; background: #1748b5; color: white; font: inherit; cursor: pointer; }
-      button.secundario { background: #e2e8f0; color: #172033; }
-      button:disabled { opacity: .6; cursor: default; }
-      #mensaje { margin-top: 1.2rem; padding: 1rem; border-left: 4px solid; white-space: pre-line; }
-      #mensaje.ok { background: #f0fdf4; border-color: #16a34a; }
-      #mensaje.error { background: #fef2f2; border-color: #dc2626; }
-      #mensaje.info { background: #eff6ff; border-color: #1748b5; }
-      @media (max-width: 760px) { main { margin: 1rem; padding: 1.5rem; } }
-    </style>
+    <title>Editar cliente | Sistema CRUD</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/editar.css">
+    <script src="/static/js/editar.js" defer></script>
   </head>
   <body>
     <main>
-      <p><a href="/">&larr; Inicio</a></p>
+      <nav aria-label="Navegaci&oacute;n"><a href="/">Volver al inicio</a></nav>
       <h1>Editar cliente</h1>
+      <p>Carga un cliente por su identificador, modifica sus datos y guarda los cambios.
+        Todos los campos son obligatorios.</p>
+      <noscript><p class="error">Debes activar JavaScript para editar clientes.</p></noscript>
 
-      <form id="formulario" novalidate>
-        <div class="fila">
-          <label>ID del cliente
-            <input id="cliente_id" type="number" min="1" required>
-          </label>
-          <button type="button" id="cargar" class="secundario">Cargar</button>
+      <form id="cargar-cliente" novalidate>
+        <div class="field">
+          <label for="cliente-id">Identificador del cliente</label>
+          <div class="search-input">
+            <input id="cliente-id" name="cliente_id" type="text" inputmode="numeric"
+              maxlength="16" required autocomplete="off" aria-describedby="cliente-id-error">
+            <button id="cargar" type="submit">Cargar</button>
+          </div>
+          <p id="cliente-id-error" class="field-error" aria-live="polite"></p>
         </div>
-        <label>Nombre
-          <input id="nombre" maxlength="100" required>
-        </label>
-        <label>Correo
-          <input id="correo" type="email" maxlength="254" required>
-        </label>
-        <label for="telefono">Tel&eacute;fono</label>
-        <div class="telefono">
-          <span class="prefijo" aria-label="C&oacute;digo de pa&iacute;s de Costa Rica">+506</span>
-          <input id="telefono" type="tel" inputmode="numeric" pattern="[1-9][0-9]{7}" minlength="8" maxlength="8"
-            autocomplete="tel-national" placeholder="88887777" required aria-describedby="telefono-ayuda telefono-error">
-        </div>
-        <p id="telefono-ayuda" class="ayuda">C&oacute;digo de pa&iacute;s +506 (Costa Rica). Escriba solo los 8 d&iacute;gitos del n&uacute;mero, sin el prefijo.</p>
-        <p id="telefono-error" class="error-campo" aria-live="polite"></p>
-        <button type="submit" id="guardar">Guardar cambios</button>
       </form>
 
-      <div id="mensaje" hidden></div>
+      <form id="editar-cliente" novalidate>
+        <fieldset id="datos-cliente" disabled>
+          <legend>Datos del cliente</legend>
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" required maxlength="100"
+              autocomplete="name" aria-describedby="nombre-error">
+            <p id="nombre-error" class="field-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="correo">Correo electr&oacute;nico</label>
+            <input id="correo" name="correo" type="email" required maxlength="254"
+              autocomplete="email" aria-describedby="correo-error">
+            <p id="correo-error" class="field-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="telefono">Tel&eacute;fono</label>
+            <div class="phone-input">
+              <span class="country-code" aria-label="C&oacute;digo de Costa Rica">+506</span>
+              <input id="telefono" name="telefono" type="tel" required minlength="8"
+                maxlength="8" pattern="[1-9][0-9]{7}" inputmode="numeric" autocomplete="tel-national"
+                aria-describedby="telefono-ayuda telefono-error">
+            </div>
+            <small id="telefono-ayuda">C&oacute;digo de pa&iacute;s +506 (Costa Rica). Escribe solo los
+              8 d&iacute;gitos del n&uacute;mero, sin el prefijo.</small>
+            <p id="telefono-error" class="field-error" aria-live="polite"></p>
+          </div>
+          <button id="guardar" type="submit">Guardar cambios</button>
+        </fieldset>
+      </form>
+      <p id="resultado" role="status" aria-live="polite" aria-atomic="true"></p>
     </main>
-
-    <script>
-      const campos = ["nombre", "correo", "telefono"];
-      const $ = (id) => document.getElementById(id);
-
-      function mostrar(texto, tipo) {
-        const mensaje = $("mensaje");
-        mensaje.textContent = texto;
-        mensaje.className = tipo;
-        mensaje.hidden = false;
-      }
-
-      // Solo se aceptan dígitos: se descartan letras y símbolos mientras se escribe o pega.
-      $("telefono").addEventListener("input", () => {
-        $("telefono").value = $("telefono").value.replace(/[^0-9]/g, "").slice(0, 8);
-        errorTelefono("");
-      });
-
-      function errorTelefono(texto) {
-        $("telefono-error").textContent = texto;
-        $("telefono").setAttribute("aria-invalid", texto ? "true" : "false");
-      }
-
-      function describirError(cuerpo) {
-        if (Array.isArray(cuerpo?.detail)) {
-          return cuerpo.detail
-            .map((error) => `${error.loc.slice(1).join(".") || "cuerpo"}: ${error.msg}`)
-            .join("\n");
-        }
-        return cuerpo?.detail ?? "Error desconocido";
-      }
-
-      async function cargar() {
-        const id = $("cliente_id").value;
-        if (!id) return mostrar("Ingrese el ID del cliente.", "error");
-
-        const respuesta = await fetch(`/api/clientes/${id}`);
-        if (respuesta.ok) {
-          const cliente = await respuesta.json();
-          campos.forEach((campo) => ($(campo).value = cliente[campo]));
-          mostrar(`Cliente ${id} cargado.`, "info");
-        } else if (respuesta.status === 404) {
-          mostrar("Cliente no encontrado.", "error");
-        } else {
-          mostrar("No se pudieron cargar los datos actuales. Complete los campos manualmente.", "info");
-        }
-      }
-
-      async function guardar(evento) {
-        evento.preventDefault();
-        const id = $("cliente_id").value;
-        if (!id) return mostrar("Ingrese el ID del cliente.", "error");
-
-        const datos = Object.fromEntries(campos.map((campo) => [campo, $(campo).value]));
-        if (!/^[1-9][0-9]{7}$/.test(datos.telefono)) {
-          errorTelefono("Ingrese un teléfono de exactamente 8 dígitos, sin cero inicial.");
-          $("telefono").focus();
-          return mostrar("Revise el teléfono antes de guardar.", "error");
-        }
-        errorTelefono("");
-        datos.telefono = Number(datos.telefono);
-        $("guardar").disabled = true;
-        try {
-          const respuesta = await fetch(`/api/clientes/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(datos),
-          });
-          const cuerpo = await respuesta.json();
-          if (respuesta.ok) {
-            campos.forEach((campo) => ($(campo).value = cuerpo[campo]));
-            mostrar(`Cliente ${cuerpo.id} actualizado correctamente.`, "ok");
-          } else {
-            mostrar(describirError(cuerpo), "error");
-          }
-        } catch {
-          mostrar("No se pudo conectar con la API.", "error");
-        } finally {
-          $("guardar").disabled = false;
-        }
-      }
-
-      $("cargar").addEventListener("click", cargar);
-      $("formulario").addEventListener("submit", guardar);
-
-      const idInicial = new URLSearchParams(location.search).get("id");
-      if (idInicial) {
-        $("cliente_id").value = idInicial;
-        cargar();
-      }
-    </script>
   </body>
 </html>

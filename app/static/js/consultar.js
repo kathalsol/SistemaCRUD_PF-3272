@@ -20,7 +20,7 @@ function formatearTelefono(cliente) {
 }
 
 function enlaceEditar(id) {
-  return `/editar?id=${encodeURIComponent(id)}`;
+  return `/clientes/editar?cliente_id=${encodeURIComponent(id)}`;
 }
 
 function enlaceEliminar(id) {

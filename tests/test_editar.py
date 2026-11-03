@@ -105,14 +105,53 @@ def test_editar_cliente_requiere_todos_los_campos(client: TestClient, cliente_id
     assert response.status_code == 422
 
 
-def test_editar_cliente_id_no_numerico(client: TestClient):
-    response = client.put("/api/clientes/abc", json=DATOS_NUEVOS)
+@pytest.mark.parametrize("cliente_id", ["abc", "1.5", "0", "-1", "9223372036854775808"])
+def test_editar_rechaza_identificador_invalido(client: TestClient, cliente_id: str):
+    response = client.put(f"/api/clientes/{cliente_id}", json=DATOS_NUEVOS)
 
     assert response.status_code == 422
 
 
-def test_pagina_editar(client: TestClient):
-    response = client.get("/editar")
+def test_editar_solo_modifica_el_cliente_indicado(
+    app: FastAPI, client: TestClient, cliente_id: int
+):
+    with Session(app.state.engine) as session:
+        otro = Cliente(nombre="Otro cliente", correo="otro@example.com", telefono=66666666)
+        session.add(otro)
+        session.commit()
+        otro_id = otro.id
+
+    response = client.put(f"/api/clientes/{cliente_id}", json=DATOS_NUEVOS)
 
     assert response.status_code == 200
-    assert "Editar cliente" in response.text
+    assert client.get(f"/api/clientes/{otro_id}").json() == {
+        "id": otro_id,
+        "nombre": "Otro cliente",
+        "correo": "otro@example.com",
+        "telefono": 66666666,
+        "codigo_pais": 506,
+    }
+
+
+def test_pantalla_y_recursos_disponibles(client: TestClient):
+    assert 'href="/clientes/editar"' in client.get("/").text
+    pagina = client.get("/clientes/editar")
+    assert pagina.status_code == 200
+    assert "text/html" in pagina.headers["content-type"]
+    assert 'href="/static/css/styles.css"' in pagina.text
+    assert 'src="/static/js/editar.js"' in pagina.text
+    for campo in ["cliente-id", "nombre", "correo", "telefono"]:
+        assert f'id="{campo}"' in pagina.text
+        assert f'id="{campo}-error"' in pagina.text
+    assert 'type="tel"' in pagina.text
+    assert 'type="number"' not in pagina.text
+    assert 'pattern="[1-9][0-9]{7}"' in pagina.text
+    assert "+506" in pagina.text
+    assert "<style>" not in pagina.text
+    for recurso in ["/static/js/editar.js", "/static/css/editar.css"]:
+        assert client.get(recurso).status_code == 200
+
+
+def test_contrato_openapi_declara_404_en_edicion(client: TestClient):
+    respuestas = client.get("/openapi.json").json()["paths"]["/api/clientes/{cliente_id}"]["put"]["responses"]
+    assert "404" in respuestas

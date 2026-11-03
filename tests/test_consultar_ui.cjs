@@ -75,7 +75,7 @@ test("lista clientes como texto, con teléfono formateado y enlaces a editar y e
   const celdas = fila.children.map((celda) => celda.textContent);
   assert.deepEqual(celdas.slice(0, 4), [1, "<b>Ana</b>", "ana@example.com", "+506 8888-7777"]);
   const [, editar, eliminar] = fila.children[4].children[0].children;
-  assert.equal(editar.href, "/editar?id=1");
+  assert.equal(editar.href, "/clientes/editar?cliente_id=1");
   assert.equal(eliminar.href, "/clientes/eliminar?cliente_id=1");
 });
 
@@ -106,7 +106,7 @@ test("consulta por identificador y muestra el detalle", async () => {
   assert.equal(elementos.detalle.hidden, false);
   assert.equal(elementos["detalle-nombre"].textContent, "<b>Ana</b>");
   assert.equal(elementos["detalle-telefono"].textContent, "+506 8888-7777");
-  assert.equal(elementos["detalle-editar"].href, "/editar?id=1");
+  assert.equal(elementos["detalle-editar"].href, "/clientes/editar?cliente_id=1");
   assert.equal(elementos["detalle-eliminar"].href, "/clientes/eliminar?cliente_id=1");
 });
 
@@ -166,7 +166,7 @@ test("ignora respuestas de consultas anteriores que llegan fuera de orden", asyn
   assert.equal(elementos["cliente-id"].value, "2");
   assert.equal(elementos["detalle-id"].textContent, 2);
   assert.equal(elementos["detalle-nombre"].textContent, "Luis");
-  assert.equal(elementos["detalle-editar"].href, "/editar?id=2");
+  assert.equal(elementos["detalle-editar"].href, "/clientes/editar?cliente_id=2");
   assert.equal(elementos["detalle-eliminar"].href, "/clientes/eliminar?cliente_id=2");
 });
 

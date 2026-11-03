@@ -5,9 +5,9 @@ TRABAJO FINAL Curso PF-3872 Parte 2 Desarrollo colaborativo y pase a producción
 
 Aplicación con **Python 3.12+, FastAPI, SQLAlchemy y SQLite**. Incluye una
 página de inicio, documentación de API, comprobación de conexión, modelo de
-cliente, validaciones y pruebas. **El registro, el listado, la consulta y la
-eliminación de clientes están implementados, con sus API y pantallas**, incluida
-la confirmación o cancelación de la eliminación. Editar queda pendiente de integrar.
+cliente, validaciones y pruebas. **El registro, el listado, la consulta, la
+edición y la eliminación de clientes están implementados, con sus API y
+pantallas**, incluida la confirmación o cancelación de la eliminación.
 
 ## Instalación y ejecución
 
@@ -38,11 +38,11 @@ en Windows. En una instalación de demostración basta con `requirements.txt`.
 - Inicio: <http://127.0.0.1:8000/>
 - Registro de clientes: <http://127.0.0.1:8000/clientes/crear>
 - Listar y consultar clientes: <http://127.0.0.1:8000/clientes/consultar>
+- Editar cliente: <http://127.0.0.1:8000/clientes/editar>
 - Eliminar cliente: <http://127.0.0.1:8000/clientes/eliminar>
 - Swagger: <http://127.0.0.1:8000/docs>
 - ReDoc: <http://127.0.0.1:8000/redoc>
 - Estado y conexión SQLite: <http://127.0.0.1:8000/health>
-- Editar cliente: <http://127.0.0.1:8000/editar> (acepta `?id=<cliente_id>`)
 
 ### Datos de ejemplo
 
@@ -73,7 +73,7 @@ app/
     __init__.py         Prefijo común e integración de routers
     crear.py            Persona 1
     consultar.py        Ney: GET de listado y de detalle con 404
-    editar.py           Persona 3
+    editar.py           Roberto: PUT con estados 200, 404 y 422
     eliminar.py         Esteban: DELETE con estados 204 y 404
   templates/
     index.html          Página inicial y navegación
@@ -86,6 +86,8 @@ app/
     js/crear.js         Envío y mensajes de validación del registro
     js/consultar.js     Carga del listado, búsqueda y detalle
     css/consultar.css   Complemento de styles.css para tabla y detalle
+    js/editar.js        Carga del cliente, validación y llamada PUT
+    css/editar.css      Complemento de styles.css para la edición
     js/eliminar.js      Validación, confirmación y llamada DELETE
     css/eliminar.css    Estilos de la pantalla de eliminación
 tests/
@@ -94,6 +96,8 @@ tests/
   test_crear_ui.cjs     Pruebas del comportamiento JavaScript
   test_consultar.py     Pruebas de listado, consulta, 404 y recursos
   test_consultar_ui.cjs Pruebas JavaScript del listado y la consulta
+  test_editar.py        Pruebas de API, 404, 422 y recursos de la edición
+  test_editar_ui.cjs    Pruebas JavaScript de la edición
   test_eliminar.py      Pruebas de API, persistencia y recursos
 scripts/
   probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
@@ -102,8 +106,8 @@ docs/
   entrega-esteban.md    Evidencias, aporte y pendientes de entrega
 ```
 
-Los cuatro routers están conectados. Los endpoints de creación, listado,
-consulta y eliminación están implementados; la edición sigue el acuerdo:
+Los cuatro routers están conectados y sus endpoints implementados según el
+acuerdo:
 
 | Operación | Método y ruta | Contrato esperado |
 | --- | --- | --- |
@@ -186,9 +190,33 @@ informa que el cliente no existe. Los identificadores que no son enteros
 positivos se rechazan en la pantalla sin llamar a la API, y la API responde
 **422**. Los datos se muestran como texto, no como HTML.
 
-Cada fila y el detalle enlazan a `/clientes/eliminar?cliente_id=ID`, que
-precarga el identificador y siempre pide confirmación. Para abrir el detalle
+Cada fila y el detalle enlazan a `/clientes/editar?cliente_id=ID`, que carga
+el cliente para editarlo, y a `/clientes/eliminar?cliente_id=ID`, que precarga
+el identificador y siempre pide confirmación. Para abrir el detalle
 directamente, usar `/clientes/consultar?cliente_id=ID`.
+
+## Editar un cliente
+
+Entrar a `/clientes/editar` desde la página inicial o con **Editar** en el
+listado de consulta. Escribir el identificador y pulsar **Cargar**: la pantalla
+llama a `GET /api/clientes/{cliente_id}` y llena nombre, correo y teléfono. El
+formulario permanece bloqueado hasta cargar un cliente. Con **404** informa que
+el cliente no existe; los identificadores que no son enteros positivos se
+rechazan sin llamar a la API.
+
+Modificar los datos y pulsar **Guardar cambios** envía JSON a
+`PUT /api/clientes/{cliente_id}` usando siempre el identificador del cliente
+cargado. Si se cambia el identificador después de cargar, el formulario se
+vacía y se bloquea hasta volver a pulsar **Cargar**, de modo que no se puedan
+guardar los datos de un cliente sobre otro. Si llegan respuestas de cargas
+anteriores fuera de orden, se descartan.
+
+El teléfono muestra el prefijo fijo **+506** y acepta solo los 8 dígitos del
+número, como en el registro. Los mensajes de validación aparecen en español
+bajo cada campo, también para los errores **422** del servidor. Con **200** se
+muestran los datos guardados; ante otro error o una falla de conexión los datos
+permanecen en el formulario. La API responde **422** a identificadores fuera
+del rango de enteros de SQLite.
 
 FastAPI sirve archivos estáticos desde `/static`. Cada integrante puede añadir
 su página y su script separados usando estos estilos y el mismo montaje; las
@@ -205,7 +233,9 @@ creación del esquema, validaciones, persistencia tras reiniciar y aislamiento
 entre ambientes. Las de eliminación verifican 204 sin cuerpo, 404, identificadores
 inválidos, persistencia y conservación de otros clientes. Las de consulta
 verifican el listado vacío y con registros, el detalle, 404, identificadores
-inválidos, persistencia y la pantalla. No modifican la base de desarrollo.
+inválidos, persistencia y la pantalla. Las de edición verifican la
+actualización, 404, datos e identificadores inválidos sin modificar el registro
+y que no se alteren otros clientes. No modifican la base de desarrollo.
 
 ### Probar la eliminación de forma aislada
 
@@ -244,7 +274,7 @@ límites, errores 422 sin insertar datos y errores de escritura sin respuesta de
 ejecutar la aplicación):
 
 ```bash
-node --test tests/test_crear_ui.cjs tests/test_consultar_ui.cjs
+node --test tests/test_crear_ui.cjs tests/test_consultar_ui.cjs tests/test_editar_ui.cjs
 ```
 
 ## Configuración y demostración
