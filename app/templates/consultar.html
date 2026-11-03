@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consultar clientes | Sistema CRUD</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/consultar.css">
+    <script src="/static/js/consultar.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Navegaci&oacute;n"><a href="/">Volver al inicio</a></nav>
+      <h1>Consultar clientes</h1>
+      <p>Revisa el listado de clientes registrados o busca uno por su identificador.</p>
+      <noscript><p class="error">Debes activar JavaScript para consultar clientes.</p></noscript>
+
+      <h2>Buscar por identificador</h2>
+      <form id="buscar-cliente" novalidate>
+        <div class="field">
+          <label for="cliente-id">Identificador del cliente</label>
+          <div class="search-input">
+            <input id="cliente-id" name="cliente_id" type="text" inputmode="numeric"
+              maxlength="16" required autocomplete="off" aria-describedby="cliente-id-error">
+            <button id="buscar" type="submit">Consultar</button>
+          </div>
+          <p id="cliente-id-error" class="field-error" aria-live="polite"></p>
+        </div>
+      </form>
+      <p id="resultado" role="status" aria-live="polite" aria-atomic="true"></p>
+      <section id="detalle" class="notice" hidden aria-labelledby="detalle-titulo">
+        <h3 id="detalle-titulo">Detalle del cliente</h3>
+        <dl>
+          <dt>Identificador</dt><dd id="detalle-id"></dd>
+          <dt>Nombre</dt><dd id="detalle-nombre"></dd>
+          <dt>Correo electr&oacute;nico</dt><dd id="detalle-correo"></dd>
+          <dt>Tel&eacute;fono</dt><dd id="detalle-telefono"></dd>
+        </dl>
+        <a id="detalle-eliminar" href="/clientes/eliminar">Eliminar este cliente</a>
+      </section>
+
+      <div class="section-heading">
+        <h2>Listado de clientes</h2>
+        <button id="actualizar" type="button" class="secondary">Actualizar</button>
+      </div>
+      <p id="estado-listado" role="status" aria-live="polite">Cargando clientes...</p>
+      <div class="table-wrap">
+        <table id="tabla-clientes" hidden>
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Tel&eacute;fono</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="filas-clientes"></tbody>
+        </table>
+      </div>
+    </main>
+  </body>
+</html>

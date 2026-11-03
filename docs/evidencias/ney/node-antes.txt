@@ -1,0 +1,150 @@
+TAP version 13
+# Subtest: lista clientes como texto, con teléfono formateado y enlace a eliminar
+ok 1 - lista clientes como texto, con teléfono formateado y enlace a eliminar
+  ---
+  duration_ms: 8.8557
+  type: 'test'
+  ...
+# Subtest: indica cuando no hay clientes registrados
+ok 2 - indica cuando no hay clientes registrados
+  ---
+  duration_ms: 2.2207
+  type: 'test'
+  ...
+# Subtest: muestra error si no se puede cargar el listado
+ok 3 - muestra error si no se puede cargar el listado
+  ---
+  duration_ms: 1.0817
+  type: 'test'
+  ...
+# Subtest: consulta por identificador y muestra el detalle
+ok 4 - consulta por identificador y muestra el detalle
+  ---
+  duration_ms: 1.4496
+  type: 'test'
+  ...
+# Subtest: informa cuando el cliente no existe
+ok 5 - informa cuando el cliente no existe
+  ---
+  duration_ms: 1.5476
+  type: 'test'
+  ...
+# Subtest: no consulta con identificador inválido: ""
+ok 6 - no consulta con identificador inválido: ""
+  ---
+  duration_ms: 1.1009
+  type: 'test'
+  ...
+# Subtest: no consulta con identificador inválido: "abc"
+ok 7 - no consulta con identificador inválido: "abc"
+  ---
+  duration_ms: 2.1047
+  type: 'test'
+  ...
+# Subtest: no consulta con identificador inválido: "0"
+ok 8 - no consulta con identificador inválido: "0"
+  ---
+  duration_ms: 2.1157
+  type: 'test'
+  ...
+# Subtest: no consulta con identificador inválido: "-1"
+ok 9 - no consulta con identificador inválido: "-1"
+  ---
+  duration_ms: 2.5038
+  type: 'test'
+  ...
+# Subtest: no consulta con identificador inválido: "1.5"
+ok 10 - no consulta con identificador inválido: "1.5"
+  ---
+  duration_ms: 1.3455
+  type: 'test'
+  ...
+# Subtest: no consulta con identificador inválido: "9007199254740993"
+ok 11 - no consulta con identificador inválido: "9007199254740993"
+  ---
+  duration_ms: 0.9871
+  type: 'test'
+  ...
+# Subtest: carga el detalle desde ?cliente_id=ID
+ok 12 - carga el detalle desde ?cliente_id=ID
+  ---
+  duration_ms: 1.1277
+  type: 'test'
+  ...
+# Subtest: ignora respuestas de consultas anteriores que llegan fuera de orden
+not ok 13 - ignora respuestas de consultas anteriores que llegan fuera de orden
+  ---
+  duration_ms: 2.4032
+  type: 'test'
+  location: 'C:\\UCR Maestria\\2026\\Semestre 2\\Metodologias Agiles Para Desarrollo de Software\\DevOps Codificando como equipo 15pts\\SistemaCRUD_PF-3272\\tests\\test_consultar_ui.cjs:145:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    1 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\UCR Maestria\2026\Semestre 2\Metodologias Agiles Para Desarrollo de Software\DevOps Codificando como equipo 15pts\SistemaCRUD_PF-3272\tests\test_consultar_ui.cjs:165:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: un 404 o error de una consulta anterior no reemplaza la consulta vigente
+not ok 14 - un 404 o error de una consulta anterior no reemplaza la consulta vigente
+  ---
+  duration_ms: 2.5728
+  type: 'test'
+  location: 'C:\\UCR Maestria\\2026\\Semestre 2\\Metodologias Agiles Para Desarrollo de Software\\DevOps Codificando como equipo 15pts\\SistemaCRUD_PF-3272\\tests\\test_consultar_ui.cjs:170:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'No se pudo consultar el cliente. Revisa la conexión.'
+    - ''
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ''
+  actual: 'No se pudo consultar el cliente. Revisa la conexión.'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\UCR Maestria\2026\Semestre 2\Metodologias Agiles Para Desarrollo de Software\DevOps Codificando como equipo 15pts\SistemaCRUD_PF-3272\tests\test_consultar_ui.cjs:192:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: un identificador inválido descarta la consulta pendiente
+not ok 15 - un identificador inválido descarta la consulta pendiente
+  ---
+  duration_ms: 1.5401
+  type: 'test'
+  location: 'C:\\UCR Maestria\\2026\\Semestre 2\\Metodologias Agiles Para Desarrollo de Software\\DevOps Codificando como equipo 15pts\\SistemaCRUD_PF-3272\\tests\\test_consultar_ui.cjs:195:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\UCR Maestria\2026\Semestre 2\Metodologias Agiles Para Desarrollo de Software\DevOps Codificando como equipo 15pts\SistemaCRUD_PF-3272\tests\test_consultar_ui.cjs:208:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 12
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 142.0433
