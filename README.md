@@ -5,9 +5,9 @@ TRABAJO FINAL Curso PF-3872 Parte 2 Desarrollo colaborativo y pase a producción
 
 Aplicación con **Python 3.12+, FastAPI, SQLAlchemy y SQLite**. Incluye una
 página de inicio, documentación de API, comprobación de conexión, modelo de
-cliente, validaciones y pruebas. **El registro de clientes ya está implementado,
-con su API y formulario**. Consultar, editar y eliminar quedan pendientes para
-los demás integrantes.
+cliente, validaciones y pruebas. **El registro y la eliminación de clientes
+están implementados, con sus API y formularios**, incluida la confirmación o
+cancelación de la eliminación. Consultar y editar quedan pendientes de integrar.
 
 ## Instalación y ejecución
 
@@ -37,6 +37,7 @@ en Windows. En una instalación de demostración basta con `requirements.txt`.
 
 - Inicio: <http://127.0.0.1:8000/>
 - Registro de clientes: <http://127.0.0.1:8000/clientes/crear>
+- Eliminar cliente: <http://127.0.0.1:8000/clientes/eliminar>
 - Swagger: <http://127.0.0.1:8000/docs>
 - ReDoc: <http://127.0.0.1:8000/redoc>
 - Estado y conexión SQLite: <http://127.0.0.1:8000/health>
@@ -59,21 +60,29 @@ app/
     crear.py            Persona 1
     consultar.py        Persona 2
     editar.py           Persona 3
-    eliminar.py         Persona 4
+    eliminar.py         Esteban: DELETE con estados 204 y 404
   templates/
     index.html          Página inicial y navegación
     crear.html          Formulario de registro
+    eliminar.html       Confirmación y cancelación de eliminación
   static/
     css/styles.css      Estilos compartidos
     js/crear.js         Envío y mensajes de validación del registro
+    js/eliminar.js      Validación, confirmación y llamada DELETE
+    css/eliminar.css    Estilos de la pantalla de eliminación
 tests/
   test_base.py          Pruebas de infraestructura y contratos
   test_crear.py         Pruebas de API y recursos del registro
   test_crear_ui.cjs     Pruebas del comportamiento JavaScript
+  test_eliminar.py      Pruebas de API, persistencia y recursos
+scripts/
+  probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
+docs/
+  entrega-esteban.md    Evidencias, aporte y pendientes de entrega
 ```
 
-Los cuatro routers están conectados. El endpoint de creación está implementado;
-las demás rutas son el acuerdo para el desarrollo:
+Los cuatro routers están conectados. Los endpoints de creación y eliminación
+están implementados; las demás rutas son el acuerdo para el desarrollo:
 
 | Operación | Método y ruta | Contrato esperado |
 | --- | --- | --- |
@@ -105,8 +114,8 @@ iniciales. Nombre elimina espacios en los extremos; no se aceptan campos
 adicionales. `PUT` requiere nombre, correo y teléfono. FastAPI responde con 422
 cuando el cuerpo no cumple el esquema.
 
-La confirmación de eliminación debe implementarse en la interfaz: cancelar no
-debe enviar `DELETE`. Coordinar cambios a archivos compartidos antes de
+La interfaz de eliminación solicita confirmación: cancelar no envía `DELETE`.
+Coordinar cambios a archivos compartidos antes de
 modificarlos. Agregar pruebas por operación en archivos separados y evitar
 reescribir la infraestructura para cada funcionalidad.
 
@@ -155,7 +164,40 @@ python -m pytest -q
 
 Las pruebas usan directorios temporales: comprueban inicio, documentación,
 creación del esquema, validaciones, persistencia tras reiniciar y aislamiento
-entre ambientes. No modifican la base de desarrollo.
+entre ambientes. Las de eliminación verifican 204 sin cuerpo, 404, identificadores
+inválidos, persistencia y conservación de otros clientes. No modifican la base
+de desarrollo.
+
+### Probar la eliminación de forma aislada
+
+Desde la raíz, con el entorno virtual activo:
+
+```bash
+python -m scripts.probar_eliminar
+```
+
+Abrir <http://127.0.0.1:8002/clientes/eliminar>. El script crea una base temporal
+con los clientes **1** y **2**; no necesita registrar clientes previamente ni
+depende de la consulta pendiente. El directorio temporal se elimina al detenerlo con
+Ctrl+C y una nueva ejecución vuelve a crear ambos clientes.
+
+1. Ingresar `1` y pulsar **Continuar**. Revisar el identificador del diálogo.
+2. Pulsar **Cancelar** (o Escape): debe mostrar cancelación. En la pestaña
+   Network del navegador no debe existir una petición `DELETE`.
+3. Volver a continuar y pulsar **Sí, eliminar cliente**: debe responder 204
+   sin cuerpo y mostrar que el cliente 1 fue eliminado.
+4. Repetir con `1`: debe responder 404 e indicar que ya no existe.
+5. El cliente `2` debe permanecer. Se puede comprobar directamente en la base
+   temporal cuya ruta imprime el script, o mediante la consulta cuando Ney
+   integre esa operación.
+
+Para enlazar desde el futuro listado, usar `/clientes/eliminar?cliente_id=ID`.
+Este enlace solamente precarga el identificador: siempre requiere confirmación.
+La pantalla acepta enteros positivos representables con exactitud por JavaScript;
+la API acepta identificadores positivos dentro del rango de enteros de SQLite.
+
+Las capturas y resultados de las comprobaciones realizadas se encuentran en
+[la entrega de Esteban](docs/entrega-esteban.md).
 
 Las pruebas de registro comprueban respuesta 201, identificadores, persistencia,
 límites, errores 422 sin insertar datos y errores de escritura sin respuesta de

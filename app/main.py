@@ -47,6 +47,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def formulario_crear() -> FileResponse:
         return FileResponse(Path(__file__).parent / "templates" / "crear.html")
 
+    @application.get("/clientes/eliminar", include_in_schema=False)
+    def formulario_eliminar() -> FileResponse:
+        return FileResponse(Path(__file__).parent / "templates" / "eliminar.html")
+
     @application.get("/health", tags=["Sistema"], response_model=EstadoRespuesta)
     def health(session: Session = Depends(get_session)) -> EstadoRespuesta:
         session.execute(text("SELECT 1"))
