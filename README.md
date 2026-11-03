@@ -5,9 +5,9 @@ TRABAJO FINAL Curso PF-3872 Parte 2 Desarrollo colaborativo y pase a producción
 
 Aplicación con **Python 3.12+, FastAPI, SQLAlchemy y SQLite**. Incluye una
 página de inicio, documentación de API, comprobación de conexión, modelo de
-cliente, validaciones y pruebas. **El registro y la eliminación de clientes
-están implementados, con sus API y formularios**, incluida la confirmación o
-cancelación de la eliminación. Consultar y editar quedan pendientes de integrar.
+cliente, validaciones y pruebas. **El registro, el listado, la consulta y la
+eliminación de clientes están implementados, con sus API y pantallas**, incluida
+la confirmación o cancelación de la eliminación. Editar queda pendiente de integrar.
 
 ## Instalación y ejecución
 
@@ -37,6 +37,7 @@ en Windows. En una instalación de demostración basta con `requirements.txt`.
 
 - Inicio: <http://127.0.0.1:8000/>
 - Registro de clientes: <http://127.0.0.1:8000/clientes/crear>
+- Listar y consultar clientes: <http://127.0.0.1:8000/clientes/consultar>
 - Eliminar cliente: <http://127.0.0.1:8000/clientes/eliminar>
 - Swagger: <http://127.0.0.1:8000/docs>
 - ReDoc: <http://127.0.0.1:8000/redoc>
@@ -58,22 +59,27 @@ app/
   routers/
     __init__.py         Prefijo común e integración de routers
     crear.py            Persona 1
-    consultar.py        Persona 2
+    consultar.py        Ney: GET de listado y de detalle con 404
     editar.py           Persona 3
     eliminar.py         Esteban: DELETE con estados 204 y 404
   templates/
     index.html          Página inicial y navegación
     crear.html          Formulario de registro
+    consultar.html      Listado, búsqueda por identificador y detalle
     eliminar.html       Confirmación y cancelación de eliminación
   static/
     css/styles.css      Estilos compartidos
     js/crear.js         Envío y mensajes de validación del registro
+    js/consultar.js     Carga del listado, búsqueda y detalle
+    css/consultar.css   Complemento de styles.css para tabla y detalle
     js/eliminar.js      Validación, confirmación y llamada DELETE
     css/eliminar.css    Estilos de la pantalla de eliminación
 tests/
   test_base.py          Pruebas de infraestructura y contratos
   test_crear.py         Pruebas de API y recursos del registro
   test_crear_ui.cjs     Pruebas del comportamiento JavaScript
+  test_consultar.py     Pruebas de listado, consulta, 404 y recursos
+  test_consultar_ui.cjs Pruebas JavaScript del listado y la consulta
   test_eliminar.py      Pruebas de API, persistencia y recursos
 scripts/
   probar_eliminar.py    Prueba manual con dos clientes y SQLite temporal
@@ -81,8 +87,8 @@ docs/
   entrega-esteban.md    Evidencias, aporte y pendientes de entrega
 ```
 
-Los cuatro routers están conectados. Los endpoints de creación y eliminación
-están implementados; las demás rutas son el acuerdo para el desarrollo:
+Los cuatro routers están conectados. Los endpoints de creación, listado,
+consulta y eliminación están implementados; la edición sigue el acuerdo:
 
 | Operación | Método y ruta | Contrato esperado |
 | --- | --- | --- |
@@ -152,6 +158,23 @@ muestra el problema; si se pierde la conexión, verificar si el registro se
 guardó antes de reenviar para evitar duplicados. No se exige correo único,
 porque el contrato compartido no establece esa restricción.
 
+## Listar y consultar clientes
+
+Entrar a `/clientes/consultar` desde la página inicial. La pantalla carga el
+listado con `GET /api/clientes`, ordenado por identificador; si no hay
+registros muestra "No hay clientes registrados". **Actualizar** vuelve a cargarlo.
+
+Para ver un cliente, escribir su identificador y pulsar **Consultar**, o usar
+**Ver detalle** en la tabla. Se llama a `GET /api/clientes/{cliente_id}`: con
+**200** se muestran nombre, correo y teléfono (`+506 8888-8888`); con **404** se
+informa que el cliente no existe. Los identificadores que no son enteros
+positivos se rechazan en la pantalla sin llamar a la API, y la API responde
+**422**. Los datos se muestran como texto, no como HTML.
+
+Cada fila y el detalle enlazan a `/clientes/eliminar?cliente_id=ID`, que
+precarga el identificador y siempre pide confirmación. Para abrir el detalle
+directamente, usar `/clientes/consultar?cliente_id=ID`.
+
 FastAPI sirve archivos estáticos desde `/static`. Cada integrante puede añadir
 su página y su script separados usando estos estilos y el mismo montaje; las
 rutas HTML se agregan explícitamente en `app/main.py`.
@@ -165,8 +188,9 @@ python -m pytest -q
 Las pruebas usan directorios temporales: comprueban inicio, documentación,
 creación del esquema, validaciones, persistencia tras reiniciar y aislamiento
 entre ambientes. Las de eliminación verifican 204 sin cuerpo, 404, identificadores
-inválidos, persistencia y conservación de otros clientes. No modifican la base
-de desarrollo.
+inválidos, persistencia y conservación de otros clientes. Las de consulta
+verifican el listado vacío y con registros, el detalle, 404, identificadores
+inválidos, persistencia y la pantalla. No modifican la base de desarrollo.
 
 ### Probar la eliminación de forma aislada
 
@@ -188,8 +212,8 @@ Ctrl+C y una nueva ejecución vuelve a crear ambos clientes.
    sin cuerpo y mostrar que el cliente 1 fue eliminado.
 4. Repetir con `1`: debe responder 404 e indicar que ya no existe.
 5. El cliente `2` debe permanecer. Se puede comprobar directamente en la base
-   temporal cuya ruta imprime el script, o mediante la consulta cuando Ney
-   integre esa operación.
+   temporal cuya ruta imprime el script, o en
+   <http://127.0.0.1:8002/clientes/consultar>.
 
 Para enlazar desde el futuro listado, usar `/clientes/eliminar?cliente_id=ID`.
 Este enlace solamente precarga el identificador: siempre requiere confirmación.
@@ -205,7 +229,7 @@ límites, errores 422 sin insertar datos y errores de escritura sin respuesta de
 ejecutar la aplicación):
 
 ```bash
-node --test tests/test_crear_ui.cjs
+node --test tests/test_crear_ui.cjs tests/test_consultar_ui.cjs
 ```
 
 ## Configuración y demostración

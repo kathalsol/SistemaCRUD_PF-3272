@@ -1,0 +1,19 @@
+/* Complementa styles.css solo con lo propio del listado y el detalle. */
+.search-input { display: flex; gap: .75rem; }
+.search-input input { min-width: 0; max-width: 240px; }
+.secondary { color: #172033; background: white; border: 1px solid #64748b; }
+.section-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 2rem; }
+.section-heading h2 { margin: 0; }
+#resultado:empty { display: none; }
+#detalle h3 { margin-top: 0; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1rem; margin: 0 0 1rem; }
+dt { font-weight: 600; }
+dd { margin: 0; overflow-wrap: anywhere; }
+#detalle-telefono { white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: .6rem .5rem; border-bottom: 1px solid #e2e8f0; text-align: left; }
+td { overflow-wrap: anywhere; }
+th { background: #f8fafc; white-space: nowrap; }
+.actions { display: flex; flex-wrap: wrap; gap: .5rem 1rem; white-space: nowrap; }
+.link { padding: 0; background: none; color: #1748b5; text-decoration: underline; }
