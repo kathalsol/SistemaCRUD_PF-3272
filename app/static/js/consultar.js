@@ -19,6 +19,10 @@ function formatearTelefono(cliente) {
   return `+${cliente.codigo_pais} ${numero.slice(0, 4)}-${numero.slice(4)}`;
 }
 
+function enlaceEditar(id) {
+  return `/editar?id=${encodeURIComponent(id)}`;
+}
+
 function enlaceEliminar(id) {
   return `/clientes/eliminar?cliente_id=${encodeURIComponent(id)}`;
 }
@@ -38,6 +42,7 @@ function mostrarDetalle(cliente) {
   document.getElementById("detalle-nombre").textContent = cliente.nombre;
   document.getElementById("detalle-correo").textContent = cliente.correo;
   document.getElementById("detalle-telefono").textContent = formatearTelefono(cliente);
+  document.getElementById("detalle-editar").href = enlaceEditar(cliente.id);
   document.getElementById("detalle-eliminar").href = enlaceEliminar(cliente.id);
   detalle.hidden = false;
 }
@@ -107,6 +112,11 @@ function crearFila(cliente) {
     consultarCliente(String(cliente.id));
   });
 
+  const editar = document.createElement("a");
+  editar.href = enlaceEditar(cliente.id);
+  editar.textContent = "Editar";
+  editar.setAttribute("aria-label", `Editar el cliente ${cliente.id}`);
+
   const eliminar = document.createElement("a");
   eliminar.href = enlaceEliminar(cliente.id);
   eliminar.textContent = "Eliminar";
@@ -115,7 +125,7 @@ function crearFila(cliente) {
   const acciones = document.createElement("td");
   const contenedor = document.createElement("div");
   contenedor.className = "actions";
-  contenedor.append(ver, eliminar);
+  contenedor.append(ver, editar, eliminar);
   acciones.append(contenedor);
   fila.append(acciones);
   return fila;
