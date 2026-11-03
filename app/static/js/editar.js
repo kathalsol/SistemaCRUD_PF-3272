@@ -1,15 +1,17 @@
 "use strict";
 
-const selector = document.getElementById("cliente-id");
+const buscador = document.getElementById("cliente-buscar");
+const lista = document.getElementById("lista-clientes");
 const formulario = document.getElementById("editar-cliente");
 const datosCliente = document.getElementById("datos-cliente");
+const tituloDatos = document.getElementById("datos-titulo");
 const guardar = document.getElementById("guardar");
 const resultado = document.getElementById("resultado");
 const campos = ["nombre", "correo", "telefono"];
 const limites = { nombre: 100, correo: 254, telefono: 8 };
 
 // Identificador del cliente cuyos datos están en el formulario. Guardar usa
-// siempre este valor, nunca la opción seleccionada en ese momento.
+// siempre este valor, nunca el texto escrito en el buscador en ese momento.
 let idCargado = null;
 let enviando = false;
 
@@ -52,6 +54,7 @@ function mensajeValidacion(campo, tipo) {
 function descartarCliente() {
   idCargado = null;
   datosCliente.disabled = true;
+  tituloDatos.textContent = "Datos del cliente";
   for (const campo of campos) {
     document.getElementById(campo).value = "";
     mostrarError(campo, "");
@@ -88,11 +91,11 @@ async function cargarCliente(id) {
       }
       idCargado = id;
       datosCliente.disabled = false;
+      tituloDatos.textContent = `Datos de ${textoOpcion({ id, nombre: cliente.nombre })}`;
       mostrarResultado(`Cliente ${id} cargado. Modifica los datos y pulsa Guardar cambios.`, "");
     } else if (respuesta.status === 404) {
       // Otro usuario lo eliminó después de cargar la lista.
-      opcionDe(id)?.remove();
-      selector.value = "";
+      quitarCliente(id);
       mostrarResultado(`El cliente ${id} ya no existe.`, "error");
     } else {
       mostrarResultado(`El servidor devolvió un error (${respuesta.status}). No se pudo cargar el cliente.`, "error");
@@ -106,61 +109,164 @@ async function cargarCliente(id) {
   }
 }
 
-function crearOpcion(valor, texto) {
-  const opcion = document.createElement("option");
-  opcion.value = valor;
-  opcion.textContent = texto;
-  return opcion;
-}
-
 function textoOpcion(cliente) {
   return `${cliente.id} - ${cliente.nombre}`;
 }
 
-function opcionDe(id) {
-  return [...selector.options].find((opcion) => opcion.value === id);
+// Clientes del listado, ordenados por identificador.
+let clientes = [];
+// Clientes que se muestran en la lista de sugerencias y el resaltado.
+let visibles = [];
+let activo = -1;
+
+// Compara sin distinguir mayúsculas ni tildes: "jose" encuentra "José".
+function normalizar(texto) {
+  return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-// Llena la lista con los clientes registrados, ordenados por identificador.
+// Busca por identificador, nombre o correo. Con `todos` muestra la lista completa.
+function coincidencias(todos = false) {
+  const termino = normalizar(buscador.value.trim());
+  if (todos || !termino) return clientes;
+  return clientes.filter((cliente) => normalizar(
+    `${cliente.id} ${cliente.nombre} ${cliente.correo}`,
+  ).includes(termino));
+}
+
+function crearSugerencia(cliente, indice) {
+  const opcion = document.createElement("li");
+  opcion.id = `sugerencia-${cliente.id}`;
+  opcion.setAttribute("role", "option");
+  const nombre = document.createElement("span");
+  nombre.textContent = cliente.nombre;
+  const detalle = document.createElement("small");
+  detalle.textContent = `ID ${cliente.id} · ${cliente.correo}`;
+  opcion.append(nombre, detalle);
+  // mousedown en lugar de click: evita que el campo pierda el foco y cierre la lista.
+  opcion.addEventListener("mousedown", (evento) => {
+    evento.preventDefault();
+    elegirCliente(cliente);
+  });
+  opcion.addEventListener("mousemove", () => resaltar(indice));
+  return opcion;
+}
+
+function resaltar(indice) {
+  activo = indice;
+  [...lista.children].forEach((opcion, i) => {
+    opcion.className = i === activo ? "activa" : "";
+    opcion.setAttribute("aria-selected", i === activo ? "true" : "false");
+  });
+  const opcion = lista.children[activo];
+  buscador.setAttribute("aria-activedescendant", opcion?.id ?? "");
+  opcion?.scrollIntoView?.({ block: "nearest" });
+}
+
+function abrirLista(todos = false) {
+  visibles = coincidencias(todos);
+  if (visibles.length === 0) {
+    const vacio = document.createElement("li");
+    vacio.className = "vacia";
+    vacio.textContent = "Sin coincidencias";
+    vacio.addEventListener("mousedown", (evento) => evento.preventDefault());
+    lista.replaceChildren(vacio);
+    activo = -1;
+    buscador.setAttribute("aria-activedescendant", "");
+  } else {
+    lista.replaceChildren(...visibles.map(crearSugerencia));
+    resaltar(0);
+  }
+  lista.hidden = false;
+  buscador.setAttribute("aria-expanded", "true");
+}
+
+function cerrarLista() {
+  lista.hidden = true;
+  activo = -1;
+  buscador.setAttribute("aria-expanded", "false");
+  buscador.setAttribute("aria-activedescendant", "");
+}
+
+// Muestra el cliente elegido en el campo y carga sus datos si es otro.
+function elegirCliente(cliente) {
+  buscador.value = textoOpcion(cliente);
+  // Queda seleccionado para que al escribir otra búsqueda se reemplace.
+  buscador.select?.();
+  cerrarLista();
+  if (String(cliente.id) !== idCargado) cargarCliente(String(cliente.id));
+}
+
+function quitarCliente(id) {
+  clientes = clientes.filter((cliente) => String(cliente.id) !== id);
+  buscador.value = "";
+}
+
+// Carga los clientes registrados para sugerirlos al escribir.
 async function cargarListado(idInicial) {
   try {
     const respuesta = await fetch("/api/clientes");
     if (respuesta.status !== 200) {
       throw new Error(`Respuesta inesperada del listado: ${respuesta.status}`);
     }
-    const clientes = await respuesta.json();
+    clientes = await respuesta.json();
     if (clientes.length === 0) {
-      selector.replaceChildren(crearOpcion("", "No hay clientes registrados"));
+      buscador.placeholder = "No hay clientes registrados";
       mostrarResultado("No hay clientes registrados para editar.", "");
       return;
     }
-    selector.replaceChildren(
-      crearOpcion("", "Selecciona un cliente"),
-      ...clientes.map((cliente) => crearOpcion(String(cliente.id), textoOpcion(cliente))),
-    );
-    selector.disabled = false;
-    if (idInicial && opcionDe(idInicial)) {
-      selector.value = idInicial;
-      cargarCliente(idInicial);
+    buscador.placeholder = "Escribe un nombre, correo o identificador";
+    buscador.disabled = false;
+    const inicial = clientes.find((cliente) => String(cliente.id) === idInicial);
+    if (inicial) {
+      elegirCliente(inicial);
     } else if (idInicial) {
       mostrarResultado(`No existe un cliente con identificador ${idInicial}.`, "error");
     }
   } catch (error) {
     console.error("Error al cargar la lista de clientes:", error);
-    selector.replaceChildren(crearOpcion("", "Lista no disponible"));
-    mostrarResultado("No se pudo cargar la lista de clientes. Revisa la conexi\u00f3n y recarga la p\u00e1gina.", "error");
+    buscador.placeholder = "Lista no disponible";
+    mostrarResultado("No se pudo cargar la lista de clientes. Revisa la conexión y recarga la página.", "error");
   }
 }
 
-// Elegir otro cliente descarta el cargado y trae los datos del nuevo.
-selector.addEventListener("change", () => {
-  if (selector.value) {
-    cargarCliente(selector.value);
-    return;
+buscador.addEventListener("input", () => abrirLista());
+
+// Al entrar al campo se muestran todos los clientes; escribir los filtra.
+buscador.addEventListener("focus", () => {
+  buscador.select?.();
+  abrirLista(true);
+});
+
+// Al salir sin elegir, el campo vuelve a mostrar el cliente que se edita.
+// Un clic con el campo ya enfocado (por ejemplo, después de elegir) reabre la
+// lista y selecciona el texto. Se evita la acción del navegador, que movería el
+// cursor y anularía la selección.
+buscador.addEventListener("mousedown", (evento) => {
+  if (!lista.hidden || document.activeElement !== buscador) return;
+  evento.preventDefault();
+  buscador.select();
+  abrirLista(true);
+});
+
+buscador.addEventListener("blur", () => {
+  cerrarLista();
+  const cargado = clientes.find((cliente) => String(cliente.id) === idCargado);
+  if (cargado) buscador.value = textoOpcion(cargado);
+});
+
+buscador.addEventListener("keydown", (evento) => {
+  if (evento.key === "ArrowDown" || evento.key === "ArrowUp") {
+    evento.preventDefault();
+    if (lista.hidden) return abrirLista(true);
+    if (visibles.length === 0) return;
+    const paso = evento.key === "ArrowDown" ? 1 : -1;
+    resaltar(Math.min(Math.max(activo + paso, 0), visibles.length - 1));
+  } else if (evento.key === "Enter") {
+    evento.preventDefault();
+    if (!lista.hidden && activo >= 0) elegirCliente(visibles[activo]);
+  } else if (evento.key === "Escape") {
+    cerrarLista();
   }
-  descartarConsultaPendiente();
-  descartarCliente();
-  mostrarResultado("", "");
 });
 
 formulario.addEventListener("submit", async (evento) => {
@@ -199,7 +305,8 @@ formulario.addEventListener("submit", async (evento) => {
   const id = idCargado;
   enviando = true;
   guardar.disabled = true;
-  selector.disabled = true;
+  buscador.disabled = true;
+  cerrarLista();
   formulario.setAttribute("aria-busy", "true");
   mostrarResultado("Guardando cambios...", "");
   try {
@@ -225,8 +332,7 @@ formulario.addEventListener("submit", async (evento) => {
     }
     if (respuesta.status === 404) {
       descartarCliente();
-      opcionDe(id)?.remove();
-      selector.value = "";
+      quitarCliente(id);
       mostrarResultado(`El cliente ${id} ya no existe. No se guardaron los cambios.`, "error");
       return;
     }
@@ -241,8 +347,9 @@ formulario.addEventListener("submit", async (evento) => {
     for (const campo of campos) {
       document.getElementById(campo).value = String(cliente[campo]);
     }
-    const opcion = opcionDe(id);
-    if (opcion) opcion.textContent = textoOpcion({ id, nombre: cliente.nombre });
+    clientes = clientes.map((c) => (String(c.id) === id ? { ...c, ...cliente } : c));
+    buscador.value = textoOpcion({ id, nombre: cliente.nombre });
+    tituloDatos.textContent = `Datos de ${buscador.value}`;
     mostrarResultado(`Cliente ${id} actualizado correctamente.`, "success");
   } catch (error) {
     console.error("Error al editar el cliente:", error);
@@ -253,7 +360,7 @@ formulario.addEventListener("submit", async (evento) => {
   } finally {
     enviando = false;
     guardar.disabled = false;
-    selector.disabled = false;
+    buscador.disabled = false;
     formulario.setAttribute("aria-busy", "false");
   }
 });

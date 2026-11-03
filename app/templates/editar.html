@@ -12,21 +12,23 @@
     <main>
       <nav aria-label="Navegaci&oacute;n"><a href="/">Volver al inicio</a></nav>
       <h1>Editar cliente</h1>
-      <p>Elige un cliente de la lista, modifica sus datos y guarda los cambios.
+      <p>Busca un cliente, modifica sus datos y guarda los cambios.
         Todos los campos son obligatorios.</p>
       <noscript><p class="error">Debes activar JavaScript para editar clientes.</p></noscript>
 
-      <div class="field">
-        <label for="cliente-id">Cliente</label>
-        <select id="cliente-id" name="cliente_id" disabled aria-describedby="cliente-id-ayuda">
-          <option value="">Cargando clientes...</option>
-        </select>
-        <small id="cliente-id-ayuda">Los datos del cliente se cargan al seleccionarlo.</small>
+      <div class="field combo">
+        <label for="cliente-buscar">Cliente</label>
+        <input id="cliente-buscar" type="text" role="combobox" disabled autocomplete="off"
+          aria-autocomplete="list" aria-expanded="false" aria-controls="lista-clientes"
+          placeholder="Cargando clientes..." aria-describedby="cliente-buscar-ayuda">
+        <ul id="lista-clientes" role="listbox" aria-label="Clientes" hidden></ul>
+        <small id="cliente-buscar-ayuda">Escribe parte del nombre, del correo o el identificador
+          y elige el cliente con un clic, o con las flechas y Enter.</small>
       </div>
 
       <form id="editar-cliente" novalidate>
         <fieldset id="datos-cliente" disabled>
-          <legend>Datos del cliente</legend>
+          <legend id="datos-titulo">Datos del cliente</legend>
           <div class="field">
             <label for="nombre">Nombre</label>
             <input id="nombre" name="nombre" type="text" required maxlength="100"

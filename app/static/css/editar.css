@@ -1,6 +1,10 @@
 /* Complementa styles.css solo con lo propio de la edición. */
-select { box-sizing: border-box; width: 100%; max-width: 360px; padding: .75rem; border: 1px solid #64748b; border-radius: 6px; background: white; color: inherit; font: inherit; }
-select:disabled { background: #f1f5f9; }
+.combo { position: relative; max-width: 480px; }
+#lista-clientes { position: absolute; z-index: 1; left: 0; right: 0; max-height: 18rem; overflow-y: auto; margin: .25rem 0 0; padding: .25rem 0; list-style: none; background: white; border: 1px solid #64748b; border-radius: 6px; box-shadow: 0 8px 24px rgb(15 23 42 / .15); }
+#lista-clientes li { margin: 0; padding: .5rem .75rem; cursor: pointer; }
+#lista-clientes li small { margin-top: .1rem; }
+#lista-clientes li.activa { background: #eff6ff; color: #1748b5; }
+#lista-clientes li.vacia { color: #475569; cursor: default; }
 fieldset { min-width: 0; margin: 1.5rem 0 0; padding: 0; border: 0; }
 legend { padding: 0; font-size: 1.25rem; font-weight: 600; }
 input:disabled { background: #f1f5f9; }
