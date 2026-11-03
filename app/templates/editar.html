@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar cliente | Sistema CRUD</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/editar.css">
+    <script src="/static/js/editar.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Navegaci&oacute;n"><a href="/">Volver al inicio</a></nav>
+      <h1>Editar cliente</h1>
+      <p>Busca un cliente, modifica sus datos y guarda los cambios.
+        Todos los campos son obligatorios.</p>
+      <noscript><p class="error">Debes activar JavaScript para editar clientes.</p></noscript>
+
+      <div class="field combo">
+        <label for="cliente-buscar">Cliente</label>
+        <input id="cliente-buscar" type="text" role="combobox" disabled autocomplete="off"
+          aria-autocomplete="list" aria-expanded="false" aria-controls="lista-clientes"
+          placeholder="Cargando clientes..." aria-describedby="cliente-buscar-ayuda">
+        <ul id="lista-clientes" role="listbox" aria-label="Clientes" hidden></ul>
+        <small id="cliente-buscar-ayuda">Escribe parte del nombre, del correo o el identificador
+          y elige el cliente con un clic, o con las flechas y Enter.</small>
+      </div>
+
+      <form id="editar-cliente" novalidate>
+        <fieldset id="datos-cliente" disabled>
+          <legend id="datos-titulo">Datos del cliente</legend>
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" required maxlength="100"
+              autocomplete="name" aria-describedby="nombre-error">
+            <p id="nombre-error" class="field-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="correo">Correo electr&oacute;nico</label>
+            <input id="correo" name="correo" type="email" required maxlength="254"
+              autocomplete="email" aria-describedby="correo-error">
+            <p id="correo-error" class="field-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="telefono">Tel&eacute;fono</label>
+            <div class="phone-input">
+              <span class="country-code" aria-label="C&oacute;digo de Costa Rica">+506</span>
+              <input id="telefono" name="telefono" type="tel" required minlength="8"
+                maxlength="8" pattern="[1-9][0-9]{7}" inputmode="numeric" autocomplete="tel-national"
+                aria-describedby="telefono-ayuda telefono-error">
+            </div>
+            <small id="telefono-ayuda">C&oacute;digo de pa&iacute;s +506 (Costa Rica). Escribe solo los
+              8 d&iacute;gitos del n&uacute;mero, sin el prefijo.</small>
+            <p id="telefono-error" class="field-error" aria-live="polite"></p>
+          </div>
+          <button id="guardar" type="submit">Guardar cambios</button>
+        </fieldset>
+      </form>
+      <p id="resultado" role="status" aria-live="polite" aria-atomic="true"></p>
+    </main>
+  </body>
+</html>

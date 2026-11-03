@@ -37,7 +37,7 @@ async function preparar(fetch, search = "") {
   for (const id of [
     "buscar-cliente", "cliente-id", "cliente-id-error", "resultado", "detalle",
     "detalle-id", "detalle-nombre", "detalle-correo", "detalle-telefono",
-    "detalle-eliminar", "actualizar", "estado-listado", "tabla-clientes", "filas-clientes",
+    "detalle-editar", "detalle-eliminar", "actualizar", "estado-listado", "tabla-clientes", "filas-clientes",
   ]) {
     elementos[id] = crearElemento();
   }
@@ -65,7 +65,7 @@ const ana = {
   id: 1, nombre: "<b>Ana</b>", correo: "ana@example.com", telefono: 88887777, codigo_pais: 506,
 };
 
-test("lista clientes como texto, con teléfono formateado y enlace a eliminar", async () => {
+test("lista clientes como texto, con teléfono formateado y enlaces a editar y eliminar", async () => {
   const { elementos, peticiones } = await preparar(() => respuesta(200, [ana]));
 
   assert.deepEqual(peticiones, ["/api/clientes"]);
@@ -74,7 +74,8 @@ test("lista clientes como texto, con teléfono formateado y enlace a eliminar", 
   const [fila] = elementos["filas-clientes"].children;
   const celdas = fila.children.map((celda) => celda.textContent);
   assert.deepEqual(celdas.slice(0, 4), [1, "<b>Ana</b>", "ana@example.com", "+506 8888-7777"]);
-  const [, eliminar] = fila.children[4].children[0].children;
+  const [, editar, eliminar] = fila.children[4].children[0].children;
+  assert.equal(editar.href, "/clientes/editar?cliente_id=1");
   assert.equal(eliminar.href, "/clientes/eliminar?cliente_id=1");
 });
 
@@ -105,6 +106,7 @@ test("consulta por identificador y muestra el detalle", async () => {
   assert.equal(elementos.detalle.hidden, false);
   assert.equal(elementos["detalle-nombre"].textContent, "<b>Ana</b>");
   assert.equal(elementos["detalle-telefono"].textContent, "+506 8888-7777");
+  assert.equal(elementos["detalle-editar"].href, "/clientes/editar?cliente_id=1");
   assert.equal(elementos["detalle-eliminar"].href, "/clientes/eliminar?cliente_id=1");
 });
 
@@ -164,6 +166,7 @@ test("ignora respuestas de consultas anteriores que llegan fuera de orden", asyn
   assert.equal(elementos["cliente-id"].value, "2");
   assert.equal(elementos["detalle-id"].textContent, 2);
   assert.equal(elementos["detalle-nombre"].textContent, "Luis");
+  assert.equal(elementos["detalle-editar"].href, "/clientes/editar?cliente_id=2");
   assert.equal(elementos["detalle-eliminar"].href, "/clientes/eliminar?cliente_id=2");
 });
 

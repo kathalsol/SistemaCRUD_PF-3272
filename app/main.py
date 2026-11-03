@@ -51,6 +51,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def pantalla_consultar() -> FileResponse:
         return FileResponse(Path(__file__).parent / "templates" / "consultar.html")
 
+    @application.get("/clientes/editar", include_in_schema=False)
+    def formulario_editar() -> FileResponse:
+        return FileResponse(Path(__file__).parent / "templates" / "editar.html")
+
     @application.get("/clientes/eliminar", include_in_schema=False)
     def formulario_eliminar() -> FileResponse:
         return FileResponse(Path(__file__).parent / "templates" / "eliminar.html")
