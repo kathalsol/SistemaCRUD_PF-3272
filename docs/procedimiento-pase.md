@@ -119,9 +119,14 @@ Detener A con Ctrl+C y esperar el mensaje de cierre. En B:
 if (Get-NetTCPConnection -LocalPort 8015 -State Listen -ErrorAction SilentlyContinue) {
     throw 'Detener la instancia antes del respaldo'
 }
-Copy-Item -LiteralPath (Join-Path $pase.datos 'demo.db') -Destination (Join-Path $pase.respaldo 'demo-antes-v0.1.0.db')
-Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $pase.datos 'demo.db'),(Join-Path $pase.respaldo 'demo-antes-v0.1.0.db')
-& $pase.python -c "import sqlite3,sys; print(sqlite3.connect(sys.argv[1]).execute('PRAGMA integrity_check').fetchone()[0])" (Join-Path $pase.respaldo 'demo-antes-v0.1.0.db')
+$paseBase = Join-Path $pase.datos 'demo.db'
+$paseCopiaAnterior = Join-Path $pase.respaldo 'demo-antes-v0.1.0.db'
+$paseHashBase = (Get-FileHash -Algorithm SHA256 -LiteralPath $paseBase -ErrorAction Stop).Hash
+Copy-Item -LiteralPath $paseBase -Destination $paseCopiaAnterior -ErrorAction Stop
+$paseHashAnterior = (Get-FileHash -Algorithm SHA256 -LiteralPath $paseCopiaAnterior -ErrorAction Stop).Hash
+if ($paseHashBase -ne $paseHashAnterior) { throw 'El respaldo no coincide con la base' }
+$paseIntegridad = & $pase.python -c "import sqlite3,sys; db=sqlite3.connect(sys.argv[1]); print(db.execute('PRAGMA integrity_check').fetchone()[0]); db.close()" $paseCopiaAnterior
+if ($LASTEXITCODE -ne 0 -or $paseIntegridad -ne 'ok') { throw 'Fallo la integridad del respaldo' }
 ```
 
 Los hashes deben coincidir y SQLite debe responder `ok`. Registrar entonces
@@ -149,6 +154,10 @@ El verificador exige `demo` y una URL local. Crea sus propios datos sintéticos,
 comprueba POST/listado/consulta/PUT/DELETE/404 y conserva un cliente para probar
 persistencia. No modifica registros preexistentes. Sus salidas incluyen los
 estados HTTP; no sobrescribe un archivo de evidencia existente.
+Con `--persistencia`, el modo se selecciona por la opción recibida y solo
+realiza consultas GET. Antes de contactar al servidor exige un objeto JSON
+satisfactorio, de la misma URL demo, con todos los campos del cliente guardado.
+Un archivo con `null`, una lista o evidencia incompleta termina con error.
 
 En el navegador, abrir `/clientes/consultar`. Entrar a eliminar el cliente
 sintético conservado, pulsar Continuar y Cancelar; repetir con Escape. Comprobar
@@ -172,10 +181,25 @@ Detener A. En B, guardar el estado posterior antes de restaurar:
 if (Get-NetTCPConnection -LocalPort 8015 -State Listen -ErrorAction SilentlyContinue) {
     throw 'Detener la instancia antes de restaurar'
 }
-Copy-Item -LiteralPath (Join-Path $pase.datos 'demo.db') -Destination (Join-Path $pase.respaldo 'demo-despues-pruebas.db')
-Copy-Item -LiteralPath (Join-Path $pase.respaldo 'demo-antes-v0.1.0.db') -Destination (Join-Path $pase.datos 'demo.db') -Force
-Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $pase.datos 'demo.db'),(Join-Path $pase.respaldo 'demo-antes-v0.1.0.db')
+$paseBase = Join-Path $pase.datos 'demo.db'
+$paseCopiaAnterior = Join-Path $pase.respaldo 'demo-antes-v0.1.0.db'
+$paseCopiaPosterior = Join-Path $pase.respaldo 'demo-despues-pruebas.db'
+$paseHashActual = (Get-FileHash -Algorithm SHA256 -LiteralPath $paseBase -ErrorAction Stop).Hash
+$paseHashAnterior = (Get-FileHash -Algorithm SHA256 -LiteralPath $paseCopiaAnterior -ErrorAction Stop).Hash
+Copy-Item -LiteralPath $paseBase -Destination $paseCopiaPosterior -ErrorAction Stop
+$paseHashPosterior = (Get-FileHash -Algorithm SHA256 -LiteralPath $paseCopiaPosterior -ErrorAction Stop).Hash
+if ($paseHashActual -ne $paseHashPosterior) {
+    throw 'El respaldo posterior no coincide; se cancela la restauracion'
+}
+Copy-Item -LiteralPath $paseCopiaAnterior -Destination $paseBase -Force -ErrorAction Stop
+$paseHashRestaurado = (Get-FileHash -Algorithm SHA256 -LiteralPath $paseBase -ErrorAction Stop).Hash
+if ($paseHashRestaurado -ne $paseHashAnterior) { throw 'La base restaurada no coincide con el respaldo' }
 ```
+
+Ejecutar el bloque completo. Cualquier error de copia o lectura de hashes
+detiene la ejecución. La restauración solo comienza después de comprobar que
+la copia posterior coincide con la base actual; si falla esa comprobación,
+conservar la base y resolver el error antes de repetir.
 
 **La copia anterior reemplaza los datos por el respaldo y descarta los cambios
 posteriores.** Este ensayo utiliza exclusivamente datos sintéticos y conserva

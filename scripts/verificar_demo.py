@@ -15,7 +15,7 @@ from urllib.request import Request, urlopen
 from uuid import uuid4
 
 
-def verificar(url: str, anterior: dict | None = None) -> dict:
+def verificar(url: str, *, modo: str, anterior: dict | None = None) -> dict:
     address = urlsplit(url)
     if (
         address.scheme != "http"
@@ -28,7 +28,7 @@ def verificar(url: str, anterior: dict | None = None) -> dict:
     resultado = {
         "fecha_costa_rica": datetime.now(timezone(timedelta(hours=-6))).isoformat(),
         "url": url.rstrip("/"),
-        "modo": "persistencia" if anterior is not None else "crud",
+        "modo": modo,
         "comprobaciones": [],
         "correcto": False,
     }
@@ -62,14 +62,40 @@ def verificar(url: str, anterior: dict | None = None) -> dict:
             raise RuntimeError(mensaje)
 
     try:
+        exigir(modo in {"crud", "persistencia"}, "Modo de verificación inválido")
+        if modo == "persistencia":
+            exigir(isinstance(anterior, dict), "La evidencia de persistencia debe ser un objeto JSON")
+            exigir(anterior.get("correcto") is True, "El registro anterior no fue satisfactorio")
+            exigir(anterior.get("modo") in ("crud", "persistencia"), "El registro anterior no indica un modo válido")
+            exigir(anterior.get("url") == resultado["url"], "La URL debe coincidir con la prueba anterior")
+            exigir(
+                anterior.get("health") == {"status": "ok", "environment": "demo"},
+                "La evidencia anterior debe corresponder a una instancia demo",
+            )
+            guardado = anterior.get("cliente_persistente")
+            exigir(isinstance(guardado, dict), "Falta el objeto cliente_persistente")
+            exigir(
+                set(guardado) == {"id", "nombre", "correo", "telefono", "codigo_pais"},
+                "El cliente persistente debe incluir todos sus campos",
+            )
+            exigir(
+                type(guardado["id"]) is int and 0 < guardado["id"] <= 2**63 - 1,
+                "El ID del cliente persistente debe ser un entero positivo de SQLite",
+            )
+            exigir(
+                all(isinstance(guardado[campo], str) and guardado[campo].strip()
+                    for campo in ("nombre", "correo"))
+                and type(guardado["telefono"]) is int
+                and 10_000_000 <= guardado["telefono"] <= 99_999_999
+                and guardado["codigo_pais"] == 506,
+                "Los campos del cliente persistente no son válidos",
+            )
+
         health = peticion("GET", "/health", 200)
         exigir(health == {"status": "ok", "environment": "demo"}, "La instancia debe ser demo")
         resultado["health"] = health
 
-        if anterior is not None:
-            exigir(anterior.get("correcto") is True, "El registro anterior no fue satisfactorio")
-            exigir(anterior.get("url") == resultado["url"], "La URL debe coincidir con la prueba anterior")
-            guardado = anterior["cliente_persistente"]
+        if modo == "persistencia":
             actual = peticion("GET", f"/api/clientes/{guardado['id']}", 200)
             exigir(actual == guardado, "El cliente cambió o no persistió después del reinicio")
             resultado["cliente_persistente"] = actual
@@ -118,9 +144,13 @@ def main() -> int:
     if args.salida and args.salida.exists():
         parser.error("La evidencia ya existe; usar otro archivo para conservarla.")
     anterior = None
-    if args.persistencia:
-        anterior = json.loads(args.persistencia.read_text(encoding="utf-8"))
-    resultado = verificar(args.url, anterior)
+    modo = "persistencia" if args.persistencia is not None else "crud"
+    if modo == "persistencia":
+        try:
+            anterior = json.loads(args.persistencia.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            parser.error(f"No se pudo leer la evidencia de persistencia: {error}")
+    resultado = verificar(args.url, modo=modo, anterior=anterior)
     text = json.dumps(resultado, ensure_ascii=False, indent=2) + "\n"
     if args.salida:
         args.salida.parent.mkdir(parents=True, exist_ok=True)
